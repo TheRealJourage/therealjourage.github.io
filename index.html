@@ -23,6 +23,52 @@
             justify-content: center;
             height: 100%;
             padding: 20px;
+            background: url('/static/images/parchment_map.png') no-repeat center center;
+            background-size: cover;
+            border: 5px solid #8b4513;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+
+        h1, h2 {
+            font-family: 'Pirata One', cursive;
+            color: #8b4513;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        .room-input {
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            background-color: #f8f8f2;
+            border: 2px solid #8b4513;
+            border-radius: 5px;
+            color: #1a1a2e;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            background-color: #8b4513;
+            color: #f8f8f2;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border-radius: 5px;
+            box-shadow: 0 4px #5a2e0c;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #a0522d;
+            box-shadow: 0 6px #5a2e0c;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            box-shadow: 0 2px #5a2e0c;
+            transform: translateY(2px);
         }
 
         #game-container {
@@ -80,28 +126,15 @@
             color: white;
         }
 
-        button {
-            background-color: #e94560;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            margin: 5px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background-color: #ff6b81;
-        }
-
         .room-input {
             padding: 10px;
             margin: 10px;
             width: 200px;
-            background-color: #1a1a2e;
-            border: 1px solid #e94560;
-            color: white;
+            background-color: #f8f8f2;
+            border: 2px solid #8b4513;
+            border-radius: 5px;
+            color: #1a1a2e;
+            font-family: 'Courier New', monospace;
         }
 
         .game-object {
@@ -216,6 +249,84 @@
             padding: 5px;
             border-radius: 3px;
         }
+
+        #player1-scene .scene-bg {
+            background: url('/static/images/study_room.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        #player2-scene .scene-bg {
+            background: url('/static/images/lab_basement.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        #audio-controls {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #audio-controls input[type="range"] {
+            width: 100px;
+        }
+
+        @media (max-width: 768px) {
+            #game-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+
+            #inventory {
+                grid-row: 3;
+            }
+
+            #chat {
+                grid-row: 2;
+            }
+        }
+
+        #next-room {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #16213e;
+            padding: 20px;
+            border: 3px solid #e94560;
+            z-index: 100;
+            max-width: 80%;
+            color: #f8f8f2;
+            text-align: center;
+        }
+
+        #next-room h1 {
+            margin-top: 0;
+            color: #e94560;
+        }
+
+        #next-room button {
+            margin-top: 10px;
+            background-color: #e94560;
+            color: #1a1a2e;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+
+        #next-room button:hover {
+            background-color: #d03447;
+        }
     </style>
 </head>
 <body>
@@ -223,13 +334,13 @@
     <div id="lobby">
         <h1>Pirate Escape</h1>
         <p>A 2-player cooperative adventure</p>
-        
+
         <div id="create-game" class="lobby-section">
             <h2>Create Game</h2>
             <input type="text" id="player1-name" class="room-input" placeholder="Your Name">
             <button id="create-btn">Create Room</button>
         </div>
-        
+
         <div id="join-game" class="lobby-section">
             <h2>Join Game</h2>
             <input type="text" id="player2-name" class="room-input" placeholder="Your Name">
@@ -303,6 +414,20 @@
         <button id="close-hint">Close</button>
     </div>
 
+    <!-- Next Room Section -->
+    <div id="next-room">
+        <h1>Welcome to the Next Room</h1>
+        <p>Continue your adventure and solve the next set of puzzles!</p>
+        <button id="start-next-room">Start</button>
+    </div>
+
+    <div id="audio-controls">
+        <label for="volume">Volume:</label>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+        <button id="mute-toggle">Mute</button>
+    </div>
+
+    <script src="../static/js/animations.js"></script>
     <script>
         // Game State
         const gameState = {
@@ -315,47 +440,46 @@
             currentStage: 1,
             stages: [
                 {
-                    name: "Unlock the Chest",
-                    player1Goal: "Find a way to open the treasure chest",
-                    player2Goal: "Look for clues about the chest's lock",
-                    player1Hint: "The chest needs a key. Maybe your partner can find one?",
-                    player2Hint: "Check the palm tree for hidden items",
+                    name: "The Study and the Lab",
+                    player1Goal: "Search Alistair's study for clues about his death and the mysterious Eternalis substance.",
+                    player2Goal: "Investigate the lab for evidence of Blackwood's experiments and the truth about Eternalis.",
+                    player1Hint: "Check the desk and the torn portrait for hidden compartments.",
+                    player2Hint: "Look at the chalkboard and the shelves for anything unusual.",
                     completed: false,
                     triggers: {
-                        chestOpened: false,
-                        palmExamined: false
+                        deskExamined: false,
+                        chalkboardExamined: false
                     }
                 },
                 {
-                    name: "Repair the Ship",
-                    player1Goal: "Fix the ship's wheel to prepare for departure",
-                    player2Goal: "Find tools on the island that could help repair the ship",
-                    player1Hint: "The wheel mechanism is jammed. It needs special tools to fix.",
-                    player2Hint: "The strange markings might indicate where tools are buried",
+                    name: "The Secret Library and Security Room",
+                    player1Goal: "Find a way to open the hidden library behind the bookshelf.",
+                    player2Goal: "Unlock the safe in the security room to access the CCTV footage.",
+                    player1Hint: "The bookshelf might move if you find the right mechanism.",
+                    player2Hint: "The safe requires a numeric code. Check the lab for clues.",
                     completed: false,
                     triggers: {
-                        wheelFixed: false,
-                        toolsFound: false
+                        libraryOpened: false,
+                        safeUnlocked: false
                     }
                 },
                 {
-                    name: "Lower the Bridge",
-                    player1Goal: "Find a way to lower the island bridge to access the treasure",
-                    player2Goal: "Inspect the cave entrance for clues about the bridge mechanism",
-                    player1Hint: "Check the ship's log for information about the bridge controls",
-                    player2Hint: "The artifact in the cave might activate the bridge",
+                    name: "The Great Hall",
+                    player1Goal: "Meet Detective B in the Great Hall to solve the final mystery.",
+                    player2Goal: "Meet Detective A in the Great Hall to solve the final mystery.",
+                    player1Hint: "The hall is at the center of the mansion. Look for a grand staircase.",
+                    player2Hint: "The hall is at the center of the mansion. Look for a grand staircase.",
                     completed: false,
                     triggers: {
-                        bridgeLowered: false,
-                        artifactFound: false
+                        hallReached: false
                     }
                 }
             ],
             combinedItems: {
-                "key_and_log": {
-                    items: ["chest_key", "ship_log"],
-                    result: "The key fits the log's hidden compartment! You find a map fragment.",
-                    newItem: "map_fragment"
+                "key_and_diary": {
+                    items: ["study_key", "blackwood_diary"],
+                    result: "The key unlocks a hidden compartment in the diary, revealing a map to the library.",
+                    newItem: "library_map"
                 }
             }
         };
@@ -379,6 +503,54 @@
         const hintPopup = document.getElementById('hint-popup');
         const hintContent = document.getElementById('hint-content');
         const closeHint = document.getElementById('close-hint');
+        const nextRoom = document.getElementById('next-room');
+
+        // Add audio elements for click and success sounds
+        const clickSound = new Audio('../graphics/click.mp3');
+        const successSound = new Audio('../graphics/success.mp3');
+
+        // Add audio elements for ambient sounds in Detective A's Study
+        const ambientSound = new Audio('/static/audio/study_ambient.mp3');
+        const creakingSound = new Audio('/static/audio/creaking_door.mp3');
+        const footstepsSound = new Audio('/static/audio/footsteps.mp3');
+
+        // Play click sound on button clicks
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', () => {
+                clickSound.play();
+            });
+        });
+
+        // Audio controls logic
+        const volumeControl = document.getElementById('volume');
+        const muteToggle = document.getElementById('mute-toggle');
+        const audioElements = [clickSound, successSound, ambientSound, creakingSound, footstepsSound];
+
+        volumeControl.addEventListener('input', (e) => {
+            const volume = e.target.value;
+            audioElements.forEach(audio => audio.volume = volume);
+        });
+
+        muteToggle.addEventListener('click', () => {
+            const isMuted = audioElements[0].muted;
+            audioElements.forEach(audio => audio.muted = !isMuted);
+            muteToggle.textContent = isMuted ? 'Mute' : 'Unmute';
+        });
+
+        // Update scene background assignment for Detective A's "Arbeitszimmer" (Study)
+        const style = document.createElement('style');
+        style.innerHTML = `
+            #player1-scene .scene-bg {
+                background: url('/static/images/study_room.png') no-repeat center center;
+                background-size: cover;
+            }
+
+            #player2-scene .scene-bg {
+                background: url('/static/images/secret_library.png') no-repeat center center;
+                background-size: cover;
+            }
+        `;
+        document.head.appendChild(style);
 
         // Initialize game with first stage
         function initializeStage(stageNumber) {
@@ -402,145 +574,41 @@
             gameProgress.style.width = `${progressPercent}%`;
         }
 
-        // Check for stage completion
-        function checkStageCompletion() {
-            const currentStage = gameState.stages[gameState.currentStage - 1];
-            
-            let allComplete = true;
-            for (const trigger in currentStage.triggers) {
-                if (!currentStage.triggers[trigger]) {
-                    allComplete = false;
-                    break;
-                }
-            }
-            
-            if (allComplete) {
-                currentStage.completed = true;
-                advanceToNextStage();
-            }
-        }
-
-        // Move to next stage
-        function advanceToNextStage() {
-            if (gameState.currentStage < gameState.stages.length) {
-                gameState.currentStage++;
-                initializeStage(gameState.currentStage);
-                
-                // Show new objects based on stage
-                if (gameState.currentStage === 2) {
-                    document.querySelector('[data-object="log"]').style.display = 'block';
-                    document.querySelector('[data-object="lever"]').style.display = 'block';
-                } else if (gameState.currentStage === 3) {
-                    document.querySelector('[data-object="bridge"]').style.display = 'block';
-                    document.querySelector('[data-object="artifact"]').style.display = 'block';
-                }
-                
-                addMessage(`System: You've reached stage ${gameState.currentStage}!`);
-            } else {
-                // Game completed
-                addMessage("System: Congratulations! You've escaped the island!");
-                document.getElementById('hint-text').textContent = "You've completed the game!";
-            }
-            
-            updateProgress();
-        }
-
-        // Add item to inventory
-        function addInventoryItem(id, name) {
-            // Check if item already exists
-            if (gameState.inventory.includes(id)) return;
-            
-            gameState.inventory.push(id);
-            const item = document.createElement('div');
-            item.className = 'inventory-item';
-            item.setAttribute('data-item', id);
-            item.textContent = name;
-            document.getElementById('inventory-items').appendChild(item);
-            
-            // Add click handler for the new item
-            item.addEventListener('click', function() {
-                useInventoryItem(id, name);
-            });
-            
-            // Check for item combinations
-            checkItemCombinations();
-        }
-
-        // Use inventory item
-        function useInventoryItem(id, name) {
+        // Stage 1 Interactions — Improve narrative and logic
+        function handleObjectInteraction(objectName) {
             const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
-            const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
-            
+            const playerName = gameState.player === 1 ? 'Detective A' : 'Detective B';
             let message = "";
             let trigger = null;
-            
-            if (id === 'chest_key') {
-                message = "A rusty old key. Maybe it fits the chest on the ship?";
-            } else if (id === 'ship_log') {
-                message = "The log mentions a secret mechanism near the ship's mast.";
-            } else if (id === 'tools') {
-                message = "These look like they could fix the ship's wheel.";
-            } else if (id === 'map_fragment') {
-                message = "This map fragment shows the location of the island's hidden treasure!";
-            } else if (id === 'golden_artifact') {
-                message = "The artifact glows strangely. It might activate something.";
-            }
-            
-            addMessage(`${playerName}: [Used ${name}] ${message}`, playerClass);
-            
-            // Special cases where using an item triggers progress
-            if (id === 'tools' && gameState.currentStage === 2) {
-                const wheel = document.querySelector('[data-object="wheel"]');
-                if (wheel) {
-                    addMessage(`${playerName}: Used the tools to repair the ship's wheel!`, playerClass);
-                    gameState.stages[1].triggers.wheelFixed = true;
-                    checkStageCompletion();
-                }
-            }
-        }
+            let newItem = null;
+            let newItemName = "";
 
-        // Check for item combinations
-        function checkItemCombinations() {
-            for (const combo in gameState.combinedItems) {
-                const requiredItems = gameState.combinedItems[combo].items;
-                let hasAllItems = true;
-                
-                for (const item of requiredItems) {
-                    if (!gameState.inventory.includes(item)) {
-                        hasAllItems = false;
-                        break;
-                    }
+            if (objectName === 'chest' && gameState.currentStage === 1) {
+                if (gameState.inventory.includes('chest_key')) {
+                    message = "You unlock the captain's chest. Inside is Blackwood’s torn diary.";
+                    trigger = 'chestOpened';
+                    newItem = 'blackwood_diary';
+                    newItemName = "Blackwood's Diary";
+                } else {
+                    message = "The chest is locked. A faded inscription reads: 'Only the uninvited may open.'";
                 }
-                
-                if (hasAllItems && !gameState.inventory.includes(gameState.combinedItems[combo].newItem)) {
-                    // Create combined object in the scene
-                    const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
-                    const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
-                    
-                    addMessage(`System: ${gameState.combinedItems[combo].result}`);
-                    addInventoryItem(gameState.combinedItems[combo].newItem, "Map Fragment");
-                    
-                    // Remove this combination so it doesn't trigger again
-                    delete gameState.combinedItems[combo];
-                    break;
-                }
+            } else if (objectName === 'palm' && gameState.currentStage === 1) {
+                message = "Among shattered glass, you discover a small iron key labeled 'Study'.";
+                trigger = 'palmExamined';
+                newItem = 'chest_key';
+                newItemName = "Study Key";
             }
-        }
 
-        // Add message to chat
-        function addMessage(text, playerClass = "") {
-            const message = document.createElement('div');
-            message.className = `message ${playerClass}`;
-            message.textContent = text;
-            messages.appendChild(message);
-            messages.scrollTop = messages.scrollHeight;
-        }
+            addMessage(`${playerName}: [Examined ${objectName}] ${message}`, playerClass);
 
-        // Show hint
-        function showHint() {
-            const currentStage = gameState.stages[gameState.currentStage - 1];
-            hintContent.innerHTML = gameState.player === 1 ? currentStage.player1Hint : currentStage.player2Hint;
-            hintPopup.style.display = 'block';
+            if (newItem) {
+                addInventoryItem(newItem, newItemName);
+            }
+
+            if (trigger) {
+                gameState.stages[gameState.currentStage - 1].triggers[trigger] = true;
+                checkStageCompletion();
+            }
         }
 
         // Initialize the game
@@ -549,10 +617,10 @@
             gameContainer.style.display = 'grid';
             
             if (gameState.player === 1) {
-                playerRole.textContent = "First Mate";
+                playerRole.textContent = "Detective A";
                 player1Scene.style.display = 'block';
             } else {
-                playerRole.textContent = "Captain";
+                playerRole.textContent = "Detective B";
                 player2Scene.style.display = 'block';
             }
             
@@ -561,6 +629,71 @@
             
             addMessage(`System: You are connected with ${gameState.partnerName}!`);
             addMessage(`System: Work together to solve the puzzles and escape!`);
+        }
+
+        // Add Detective A's Study logic and visuals
+        const studyObjects = [
+            {
+                name: "desk",
+                description: "A dusty mahogany desk with yellowed papers, an old typewriter, and a diary. A faint glow from an extinguished oil lamp adds to the eerie atmosphere.",
+                trigger: "deskExamined",
+                newItem: "hidden_key",
+                newItemName: "Hidden Key",
+                message: "You find a hidden key in the desk's secret compartment."
+            },
+            {
+                name: "portrait",
+                description: "A torn portrait of Alistair Blackwood hangs crookedly on the wall. The eyes seem to follow you.",
+                trigger: "portraitExamined",
+                message: "The portrait's frame has a hidden latch, but it seems to be stuck."
+            }
+        ];
+
+        function initializeStudyScene() {
+            const player1Scene = document.getElementById('player1-scene');
+            player1Scene.innerHTML = `
+                <div class="scene-bg"></div>
+                ${studyObjects.map(obj => `
+                    <div class="game-object" style="top: ${Math.random() * 400}px; left: ${Math.random() * 600}px;" data-object="${obj.name}">
+                        ${obj.name.charAt(0).toUpperCase() + obj.name.slice(1)}
+                    </div>
+                `).join('')}
+            `;
+
+            // Play ambient sound when the study is initialized
+            playAmbientSound();
+
+            document.querySelectorAll('.game-object').forEach(obj => {
+                obj.addEventListener('click', function() {
+                    const objectName = this.getAttribute('data-object');
+                    const objectData = studyObjects.find(o => o.name === objectName);
+
+                    if (objectData) {
+                        addMessage(`Detective A: [Examined ${objectName}] ${objectData.description}`);
+
+                        if (objectData.newItem) {
+                            addInventoryItem(objectData.newItem, objectData.newItemName);
+                            addMessage(`System: ${objectData.message}`);
+                        }
+
+                        if (objectData.trigger) {
+                            gameState.stages[gameState.currentStage - 1].triggers[objectData.trigger] = true;
+                        }
+
+                        // Play creaking sound for specific interactions
+                        if (objectName === 'desk' || objectName === 'portrait') {
+                            playInteractionSound(creakingSound);
+                        } else {
+                            playInteractionSound(footstepsSound);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Call this function when initializing Stage 1 for Detective A
+        if (gameState.player === 1 && gameState.currentStage === 1) {
+            initializeStudyScene();
         }
 
         // Event listeners
@@ -639,7 +772,7 @@
             obj.addEventListener('click', function() {
                 const objectName = this.getAttribute('data-object');
                 const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
-                const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
+                const playerName = gameState.player === 1 ? 'Detective A' : 'Detective B';
                 
                 let message = "";
                 let trigger = null;
@@ -647,61 +780,38 @@
                 let newItemName = "";
                 
                 // Stage 1 interactions
-                if (objectName === 'chest' && gameState.currentStage === 1) {
-                    if (gameState.inventory.includes('chest_key')) {
-                        message = "The chest opens! Inside is a ship's log.";
-                        trigger = 'chestOpened';
-                        newItem = 'ship_log';
-                        newItemName = "Ship's Log";
-                    } else {
-                        message = "The chest is locked. It has a strange keyhole.";
-                    }
-                } else if (objectName === 'palm' && gameState.currentStage === 1) {
-                    message = "There's a rusty key hidden in the palm tree!";
-                    trigger = 'palmExamined';
-                    newItem = 'chest_key';
-                    newItemName = "Rusty Key";
+                if (objectName === 'desk' && gameState.currentStage === 1) {
+                    message = "You find a torn diary page mentioning 'Eternalis' and a hidden library.";
+                    trigger = 'deskExamined';
+                    newItem = 'blackwood_diary';
+                    newItemName = "Blackwood's Diary";
+                } else if (objectName === 'chalkboard' && gameState.currentStage === 1) {
+                    message = "The chalkboard has a formula for 'Eternalis' and a clue: 'The key lies within.'";
+                    trigger = 'chalkboardExamined';
                 }
-                
+
                 // Stage 2 interactions
-                else if (objectName === 'wheel' && gameState.currentStage === 2) {
-                    if (gameState.inventory.includes('tools')) {
-                        message = "You use the tools to fix the ship's wheel!";
-                        trigger = 'wheelFixed';
-                    } else {
-                        message = "The wheel is stuck. Maybe we need tools to fix it.";
-                    }
-                } else if (objectName === 'map' && gameState.currentStage === 2) {
-                    message = "You find some tools buried near the markings!";
-                    trigger = 'toolsFound';
-                    newItem = 'tools';
-                    newItemName = "Repair Tools";
+                else if (objectName === 'bookshelf' && gameState.currentStage === 2) {
+                    message = "You discover a mechanism behind the bookshelf. It slides open, revealing a hidden library.";
+                    trigger = 'libraryOpened';
+                } else if (objectName === 'safe' && gameState.currentStage === 2) {
+                    message = "The safe clicks open, revealing CCTV footage of the mansion from 20 years ago.";
+                    trigger = 'safeUnlocked';
                 }
-                
+
                 // Stage 3 interactions
-                else if (objectName === 'log' && gameState.currentStage === 3) {
-                    message = "The log mentions a lever near the mast that controls the island bridge.";
-                } else if (objectName === 'lever' && gameState.currentStage === 3) {
-                    if (gameState.inventory.includes('golden_artifact')) {
-                        message = "You insert the artifact into the lever mechanism. The bridge lowers!";
-                        trigger = 'bridgeLowered';
-                    } else {
-                        message = "The lever needs some kind of artifact to activate it.";
-                    }
-                } else if (objectName === 'artifact' && gameState.currentStage === 3) {
-                    message = "You found a golden artifact! It looks like it fits into something.";
-                    trigger = 'artifactFound';
-                    newItem = 'golden_artifact';
-                    newItemName = "Golden Artifact";
+                else if (objectName === 'hall' && gameState.currentStage === 3) {
+                    message = "You enter the Great Hall. Detective B is waiting. It's time to solve the mystery.";
+                    trigger = 'hallReached';
                 }
-                
+
                 addMessage(`${playerName}: [Examined ${objectName}] ${message}`, playerClass);
-                
+
                 // Add new item if found
                 if (newItem) {
                     addInventoryItem(newItem, newItemName);
                 }
-                
+
                 // Update triggers if this action completed one
                 if (trigger) {
                     gameState.stages[gameState.currentStage - 1].triggers[trigger] = true;
@@ -722,6 +832,27 @@
                 hintPopup.style.display = 'none';
             }
         });
+
+        // Add event listener for transitioning to the next room
+        document.getElementById('start-next-room').addEventListener('click', () => {
+            transitionToNextRoom();
+        });
+
+        // Trigger logic for stage completion
+        function checkStageCompletion() {
+            const currentStage = gameState.stages[gameState.currentStage - 1];
+            let allComplete = true;
+            for (const trigger in currentStage.triggers) {
+                if (!currentStage.triggers[trigger]) {
+                    allComplete = false;
+                    break;
+                }
+            }
+            if (allComplete) {
+                currentStage.completed = true;
+                advanceToNextStage();
+            }
+        }
     </script>
 </body>
 </html>

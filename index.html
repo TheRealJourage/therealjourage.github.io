@@ -1,7 +1,727 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pirate Escape - 2 Player Adventure</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a2e;
+            color: #f8f8f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #lobby {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+        }
+
+        #game-container {
+            display: none;
+            height: 100%;
+            grid-template-columns: 1fr 300px;
+            grid-template-rows: auto 1fr 200px;
+        }
+
+        #header {
+            grid-column: 1 / 3;
+            background-color: #16213e;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #game-view {
+            background-color: #0f3460;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #inventory {
+            background-color: #16213e;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        #chat {
+            grid-column: 1 / 3;
+            background-color: #0f3460;
+            border-top: 2px solid #e94560;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        #chat-form {
+            display: flex;
+            padding: 10px;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            padding: 8px;
+            background-color: #1a1a2e;
+            border: 1px solid #e94560;
+            color: white;
+        }
+
+        button {
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #ff6b81;
+        }
+
+        .room-input {
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            background-color: #1a1a2e;
+            border: 1px solid #e94560;
+            color: white;
+        }
+
+        .game-object {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s;
+            background-color: rgba(0,0,0,0.5);
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .game-object:hover {
+            transform: scale(1.05);
+            background-color: rgba(233, 69, 96, 0.5);
+        }
+
+        .inventory-item {
+            background-color: #1a1a2e;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            border: 1px solid #e94560;
+        }
+
+        .inventory-item:hover {
+            background-color: #e94560;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #1a1a2e;
+        }
+
+        .player-1 {
+            color: #4cc9f0;
+        }
+
+        .player-2 {
+            color: #f72585;
+        }
+
+        #player-role {
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        #room-code {
+            font-family: monospace;
+            letter-spacing: 2px;
+            background-color: #1a1a2e;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #1a1a2e;
+            margin: 10px 0;
+            border-radius: 5px;
+            overflow: hidden;
+            width: 200px;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #e94560;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .puzzle-hint {
+            background-color: #16213e;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #e94560;
+        }
+
+        .scene-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #hint-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #16213e;
+            padding: 20px;
+            border: 3px solid #e94560;
+            z-index: 100;
+            max-width: 80%;
+        }
+
+        #hint-popup h3 {
+            margin-top: 0;
+            color: #e94560;
+        }
+
+        #close-hint {
+            margin-top: 10px;
+        }
+
+        .combined-object {
+            position: absolute;
+            cursor: pointer;
+            background-color: rgba(79, 192, 240, 0.5);
+            padding: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+    <!-- Lobby Screen -->
+    <div id="lobby">
+        <h1>Pirate Escape</h1>
+        <p>A 2-player cooperative adventure</p>
+        
+        <div id="create-game" class="lobby-section">
+            <h2>Create Game</h2>
+            <input type="text" id="player1-name" class="room-input" placeholder="Your Name">
+            <button id="create-btn">Create Room</button>
+        </div>
+        
+        <div id="join-game" class="lobby-section">
+            <h2>Join Game</h2>
+            <input type="text" id="player2-name" class="room-input" placeholder="Your Name">
+            <input type="text" id="room-id" class="room-input" placeholder="Room Code">
+            <button id="join-btn">Join Room</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-container">
+        <div id="header">
+            <div>
+                <span id="player-role">First Mate</span> | 
+                Room: <span id="room-code-display">AAAA</span>
+                <div class="progress-bar">
+                    <div class="progress" id="game-progress"></div>
+                </div>
+            </div>
+            <div>
+                <button id="hint-btn">Hint</button>
+                <button id="leave-btn">Leave Game</button>
+            </div>
+        </div>
+
+        <div id="game-view">
+            <!-- Player 1 sees the ship deck -->
+            <div id="player1-scene" class="scene" style="display: none;">
+                <img src="https://placeholder.pics/svg/800x600/DEDEDE/555555/Ship%20Deck" alt="Ship Deck" class="scene-bg">
+                <div class="game-object" style="top: 200px; left: 100px;" data-object="chest">Treasure Chest</div>
+                <div class="game-object" style="top: 300px; left: 400px;" data-object="wheel">Ship's Wheel</div>
+                <div class="game-object" style="top: 150px; left: 600px;" data-object="telescope">Telescope</div>
+                <div class="game-object" style="top: 400px; left: 200px; display: none;" data-object="log">Ship's Log</div>
+                <div class="game-object" style="top: 250px; left: 500px; display: none;" data-object="lever">Mysterious Lever</div>
+            </div>
+
+            <!-- Player 2 sees the island beach -->
+            <div id="player2-scene" class="scene" style="display: none;">
+                <img src="https://placeholder.pics/svg/800x600/DEDEDE/555555/Island%20Beach" alt="Island Beach" class="scene-bg">
+                <div class="game-object" style="top: 250px; left: 150px;" data-object="palm">Palm Tree</div>
+                <div class="game-object" style="top: 350px; left: 450px;" data-object="cave">Cave Entrance</div>
+                <div class="game-object" style="top: 200px; left: 650px;" data-object="map">Strange Markings</div>
+                <div class="game-object" style="top: 500px; left: 300px; display: none;" data-object="bridge">Wooden Bridge</div>
+                <div class="game-object" style="top: 400px; left: 200px; display: none;" data-object="artifact">Golden Artifact</div>
+            </div>
+        </div>
+
+        <div id="inventory">
+            <h3>Inventory</h3>
+            <div id="inventory-items">
+                <!-- Items will be added dynamically -->
+            </div>
+            <div class="puzzle-hint" id="current-hint">
+                <h4>Current Objective</h4>
+                <p id="hint-text">Find a way to open the treasure chest.</p>
+            </div>
+        </div>
+
+        <div id="chat">
+            <div id="messages"></div>
+            <form id="chat-form">
+                <input type="text" id="chat-input" placeholder="Type your message...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hint Popup -->
+    <div id="hint-popup">
+        <h3>Need a Hint?</h3>
+        <div id="hint-content"></div>
+        <button id="close-hint">Close</button>
+    </div>
+
+    <script>
+        // Game State
+        const gameState = {
+            player: null,
+            roomId: null,
+            playerName: null,
+            partnerName: null,
+            inventory: [],
+            progress: 0,
+            currentStage: 1,
+            stages: [
+                {
+                    name: "Unlock the Chest",
+                    player1Goal: "Find a way to open the treasure chest",
+                    player2Goal: "Look for clues about the chest's lock",
+                    player1Hint: "The chest needs a key. Maybe your partner can find one?",
+                    player2Hint: "Check the palm tree for hidden items",
+                    completed: false,
+                    triggers: {
+                        chestOpened: false,
+                        palmExamined: false
+                    }
+                },
+                {
+                    name: "Repair the Ship",
+                    player1Goal: "Fix the ship's wheel to prepare for departure",
+                    player2Goal: "Find tools on the island that could help repair the ship",
+                    player1Hint: "The wheel mechanism is jammed. It needs special tools to fix.",
+                    player2Hint: "The strange markings might indicate where tools are buried",
+                    completed: false,
+                    triggers: {
+                        wheelFixed: false,
+                        toolsFound: false
+                    }
+                },
+                {
+                    name: "Lower the Bridge",
+                    player1Goal: "Find a way to lower the island bridge to access the treasure",
+                    player2Goal: "Inspect the cave entrance for clues about the bridge mechanism",
+                    player1Hint: "Check the ship's log for information about the bridge controls",
+                    player2Hint: "The artifact in the cave might activate the bridge",
+                    completed: false,
+                    triggers: {
+                        bridgeLowered: false,
+                        artifactFound: false
+                    }
+                }
+            ],
+            combinedItems: {
+                "key_and_log": {
+                    items: ["chest_key", "ship_log"],
+                    result: "The key fits the log's hidden compartment! You find a map fragment.",
+                    newItem: "map_fragment"
+                }
+            }
+        };
+
+        // DOM elements
+        const lobby = document.getElementById('lobby');
+        const gameContainer = document.getElementById('game-container');
+        const createBtn = document.getElementById('create-btn');
+        const joinBtn = document.getElementById('join-btn');
+        const leaveBtn = document.getElementById('leave-btn');
+        const player1Scene = document.getElementById('player1-scene');
+        const player2Scene = document.getElementById('player2-scene');
+        const playerRole = document.getElementById('player-role');
+        const roomCodeDisplay = document.getElementById('room-code-display');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const messages = document.getElementById('messages');
+        const gameProgress = document.getElementById('game-progress');
+        const hintText = document.getElementById('hint-text');
+        const currentHint = document.getElementById('current-hint');
+        const hintPopup = document.getElementById('hint-popup');
+        const hintContent = document.getElementById('hint-content');
+        const closeHint = document.getElementById('close-hint');
+
+        // Initialize game with first stage
+        function initializeStage(stageNumber) {
+            const stage = gameState.stages[stageNumber - 1];
+            gameState.currentStage = stageNumber;
+            
+            if (gameState.player === 1) {
+                hintText.textContent = stage.player1Goal;
+            } else {
+                hintText.textContent = stage.player2Goal;
+            }
+            
+            currentHint.style.display = 'block';
+            updateProgress();
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const totalStages = gameState.stages.length;
+            const progressPercent = ((gameState.currentStage - 1) / totalStages) * 100;
+            gameProgress.style.width = `${progressPercent}%`;
+        }
+
+        // Check for stage completion
+        function checkStageCompletion() {
+            const currentStage = gameState.stages[gameState.currentStage - 1];
+            
+            let allComplete = true;
+            for (const trigger in currentStage.triggers) {
+                if (!currentStage.triggers[trigger]) {
+                    allComplete = false;
+                    break;
+                }
+            }
+            
+            if (allComplete) {
+                currentStage.completed = true;
+                advanceToNextStage();
+            }
+        }
+
+        // Move to next stage
+        function advanceToNextStage() {
+            if (gameState.currentStage < gameState.stages.length) {
+                gameState.currentStage++;
+                initializeStage(gameState.currentStage);
+                
+                // Show new objects based on stage
+                if (gameState.currentStage === 2) {
+                    document.querySelector('[data-object="log"]').style.display = 'block';
+                    document.querySelector('[data-object="lever"]').style.display = 'block';
+                } else if (gameState.currentStage === 3) {
+                    document.querySelector('[data-object="bridge"]').style.display = 'block';
+                    document.querySelector('[data-object="artifact"]').style.display = 'block';
+                }
+                
+                addMessage(`System: You've reached stage ${gameState.currentStage}!`);
+            } else {
+                // Game completed
+                addMessage("System: Congratulations! You've escaped the island!");
+                document.getElementById('hint-text').textContent = "You've completed the game!";
+            }
+            
+            updateProgress();
+        }
+
+        // Add item to inventory
+        function addInventoryItem(id, name) {
+            // Check if item already exists
+            if (gameState.inventory.includes(id)) return;
+            
+            gameState.inventory.push(id);
+            const item = document.createElement('div');
+            item.className = 'inventory-item';
+            item.setAttribute('data-item', id);
+            item.textContent = name;
+            document.getElementById('inventory-items').appendChild(item);
+            
+            // Add click handler for the new item
+            item.addEventListener('click', function() {
+                useInventoryItem(id, name);
+            });
+            
+            // Check for item combinations
+            checkItemCombinations();
+        }
+
+        // Use inventory item
+        function useInventoryItem(id, name) {
+            const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
+            const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
+            
+            let message = "";
+            let trigger = null;
+            
+            if (id === 'chest_key') {
+                message = "A rusty old key. Maybe it fits the chest on the ship?";
+            } else if (id === 'ship_log') {
+                message = "The log mentions a secret mechanism near the ship's mast.";
+            } else if (id === 'tools') {
+                message = "These look like they could fix the ship's wheel.";
+            } else if (id === 'map_fragment') {
+                message = "This map fragment shows the location of the island's hidden treasure!";
+            } else if (id === 'golden_artifact') {
+                message = "The artifact glows strangely. It might activate something.";
+            }
+            
+            addMessage(`${playerName}: [Used ${name}] ${message}`, playerClass);
+            
+            // Special cases where using an item triggers progress
+            if (id === 'tools' && gameState.currentStage === 2) {
+                const wheel = document.querySelector('[data-object="wheel"]');
+                if (wheel) {
+                    addMessage(`${playerName}: Used the tools to repair the ship's wheel!`, playerClass);
+                    gameState.stages[1].triggers.wheelFixed = true;
+                    checkStageCompletion();
+                }
+            }
+        }
+
+        // Check for item combinations
+        function checkItemCombinations() {
+            for (const combo in gameState.combinedItems) {
+                const requiredItems = gameState.combinedItems[combo].items;
+                let hasAllItems = true;
+                
+                for (const item of requiredItems) {
+                    if (!gameState.inventory.includes(item)) {
+                        hasAllItems = false;
+                        break;
+                    }
+                }
+                
+                if (hasAllItems && !gameState.inventory.includes(gameState.combinedItems[combo].newItem)) {
+                    // Create combined object in the scene
+                    const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
+                    const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
+                    
+                    addMessage(`System: ${gameState.combinedItems[combo].result}`);
+                    addInventoryItem(gameState.combinedItems[combo].newItem, "Map Fragment");
+                    
+                    // Remove this combination so it doesn't trigger again
+                    delete gameState.combinedItems[combo];
+                    break;
+                }
+            }
+        }
+
+        // Add message to chat
+        function addMessage(text, playerClass = "") {
+            const message = document.createElement('div');
+            message.className = `message ${playerClass}`;
+            message.textContent = text;
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Show hint
+        function showHint() {
+            const currentStage = gameState.stages[gameState.currentStage - 1];
+            hintContent.innerHTML = gameState.player === 1 ? currentStage.player1Hint : currentStage.player2Hint;
+            hintPopup.style.display = 'block';
+        }
+
+        // Initialize the game
+        function startGame() {
+            lobby.style.display = 'none';
+            gameContainer.style.display = 'grid';
+            
+            if (gameState.player === 1) {
+                playerRole.textContent = "First Mate";
+                player1Scene.style.display = 'block';
+            } else {
+                playerRole.textContent = "Captain";
+                player2Scene.style.display = 'block';
+            }
+            
+            roomCodeDisplay.textContent = gameState.roomId;
+            initializeStage(1);
+            
+            addMessage(`System: You are connected with ${gameState.partnerName}!`);
+            addMessage(`System: Work together to solve the puzzles and escape!`);
+        }
+
+        // Event listeners
+        createBtn.addEventListener('click', () => {
+            const playerName = document.getElementById('player1-name').value.trim();
+            if (!playerName) {
+                alert("Please enter your name");
+                return;
+            }
+            
+            // In a real implementation, this would call a server
+            const roomId = Math.random().toString(36).substr(2, 4).toUpperCase();
+            gameState.player = 1;
+            gameState.playerName = playerName;
+            gameState.roomId = roomId;
+            
+            // Simulate partner joining after 1 second
+            setTimeout(() => {
+                gameState.partnerName = "Captain";
+                startGame();
+            }, 1000);
+            
+            alert(`Room created! Share this code with your partner: ${roomId}`);
+        });
+
+        joinBtn.addEventListener('click', () => {
+            const playerName = document.getElementById('player2-name').value.trim();
+            const roomId = document.getElementById('room-id').value.trim().toUpperCase();
+            
+            if (!playerName) {
+                alert("Please enter your name");
+                return;
+            }
+            
+            if (!roomId || roomId.length !== 4) {
+                alert("Please enter a valid 4-character room code");
+                return;
+            }
+            
+            // In a real implementation, this would call a server
+            gameState.player = 2;
+            gameState.playerName = playerName;
+            gameState.roomId = roomId;
+            gameState.partnerName = "First Mate";
+            
+            startGame();
+        });
+
+        leaveBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to leave the game?")) {
+                gameContainer.style.display = 'none';
+                lobby.style.display = 'flex';
+                // Reset game state
+                gameState.player = null;
+                gameState.roomId = null;
+                gameState.inventory = [];
+                gameState.currentStage = 1;
+                document.getElementById('inventory-items').innerHTML = '';
+                messages.innerHTML = '';
+            }
+        });
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (message) {
+                const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
+                const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
+                addMessage(`${playerName}: ${message}`, playerClass);
+                chatInput.value = '';
+            }
+        });
+
+        // Object interaction
+        document.querySelectorAll('.game-object').forEach(obj => {
+            obj.addEventListener('click', function() {
+                const objectName = this.getAttribute('data-object');
+                const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
+                const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
+                
+                let message = "";
+                let trigger = null;
+                let newItem = null;
+                let newItemName = "";
+                
+                // Stage 1 interactions
+                if (objectName === 'chest' && gameState.currentStage === 1) {
+                    if (gameState.inventory.includes('chest_key')) {
+                        message = "The chest opens! Inside is a ship's log.";
+                        trigger = 'chestOpened';
+                        newItem = 'ship_log';
+                        newItemName = "Ship's Log";
+                    } else {
+                        message = "The chest is locked. It has a strange keyhole.";
+                    }
+                } else if (objectName === 'palm' && gameState.currentStage === 1) {
+                    message = "There's a rusty key hidden in the palm tree!";
+                    trigger = 'palmExamined';
+                    newItem = 'chest_key';
+                    newItemName = "Rusty Key";
+                }
+                
+                // Stage 2 interactions
+                else if (objectName === 'wheel' && gameState.currentStage === 2) {
+                    if (gameState.inventory.includes('tools')) {
+                        message = "You use the tools to fix the ship's wheel!";
+                        trigger = 'wheelFixed';
+                    } else {
+                        message = "The wheel is stuck. Maybe we need tools to fix it.";
+                    }
+                } else if (objectName === 'map' && gameState.currentStage === 2) {
+                    message = "You find some tools buried near the markings!";
+                    trigger = 'toolsFound';
+                    newItem = 'tools';
+                    newItemName = "Repair Tools";
+                }
+                
+                // Stage 3 interactions
+                else if (objectName === 'log' && gameState.currentStage === 3) {
+                    message = "The log mentions a lever near the mast that controls the island bridge.";
+                } else if (objectName === 'lever' && gameState.currentStage === 3) {
+                    if (gameState.inventory.includes('golden_artifact')) {
+                        message = "You insert the artifact into the lever mechanism. The bridge lowers!";
+                        trigger = 'bridgeLowered';
+                    } else {
+                        message = "The lever needs some kind of artifact to activate it.";
+                    }
+                } else if (objectName === 'artifact' && gameState.currentStage === 3) {
+                    message = "You found a golden artifact! It looks like it fits into something.";
+                    trigger = 'artifactFound';
+                    newItem = 'golden_artifact';
+                    newItemName = "Golden Artifact";
+                }
+                
+                addMessage(`${playerName}: [Examined ${objectName}] ${message}`, playerClass);
+                
+                // Add new item if found
+                if (newItem) {
+                    addInventoryItem(newItem, newItemName);
+                }
+                
+                // Update triggers if this action completed one
+                if (trigger) {
+                    gameState.stages[gameState.currentStage - 1].triggers[trigger] = true;
+                    checkStageCompletion();
+                }
+            });
+        });
+
+        // Hint system
+        hintBtn.addEventListener('click', showHint);
+        closeHint.addEventListener('click', () => {
+            hintPopup.style.display = 'none';
+        });
+
+        // Close hint when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === hintPopup) {
+                hintPopup.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

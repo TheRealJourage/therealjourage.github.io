@@ -1,408 +1,395 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Blackwoods Secret - 2 Player Adventure Escape Room</title>
-    <style>
-        body {
-            font-family: 'Courier New', monospace;
-            background-color: #1a1a2e;
-            color: #f8f8f2;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+  <meta charset="UTF-8" />
+  <title>Ballroom Escape - 2 Player Puzzle</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background-color: #1a1a2e;
+      color: #f8f8f2;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
 
-        #lobby {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 20px;
-            background: url('/static/images/parchment_map.png') no-repeat center center;
-            background-size: cover;
-            border: 5px solid #8b4513;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-        }
+    #lobby {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 20px;
+      background: url('https://placeholder.pics/svg/1000x600/2E2E3F/FFFFFF/Ballroom+Escape')  no-repeat center center;
+      background-size: cover;
+      border: 5px solid #8b4513;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    }
 
-        h1, h2 {
-            font-family: 'Pirata One', cursive;
-            color: #8b4513;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-        }
+    h1, h2 {
+      font-family: 'Pirata One', cursive;
+      color: #8b4513;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    }
 
-        .room-input {
-            padding: 10px;
-            margin: 10px;
-            width: 200px;
-            background-color: #f8f8f2;
-            border: 2px solid #8b4513;
-            border-radius: 5px;
-            color: #1a1a2e;
-            font-family: 'Courier New', monospace;
-        }
+    .room-input {
+      padding: 10px;
+      margin: 10px;
+      width: 200px;
+      background-color: #f8f8f2;
+      border: 2px solid #8b4513;
+      border-radius: 5px;
+      color: #1a1a2e;
+      font-family: 'Courier New', monospace;
+    }
 
-        button {
-            background-color: #8b4513;
-            color: #f8f8f2;
-            border: none;
-            padding: 10px 15px;
-            margin: 5px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            border-radius: 5px;
-            box-shadow: 0 4px #5a2e0c;
-            transition: all 0.2s ease;
-        }
+    button {
+      background-color: #8b4513;
+      color: #f8f8f2;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      border-radius: 5px;
+      box-shadow: 0 4px #5a2e0c;
+      transition: all 0.2s ease;
+    }
 
-        button:hover {
-            background-color: #a0522d;
-            box-shadow: 0 6px #5a2e0c;
-            transform: translateY(-2px);
-        }
+    button:hover {
+      background-color: #a0522d;
+      box-shadow: 0 6px #5a2e0c;
+      transform: translateY(-2px);
+    }
 
-        button:active {
-            box-shadow: 0 2px #5a2e0c;
-            transform: translateY(2px);
-        }
+    button:active {
+      box-shadow: 0 2px #5a2e0c;
+      transform: translateY(2px);
+    }
 
-        #game-container {
-            display: none;
-            height: 100%;
-            grid-template-columns: 1fr 300px;
-            grid-template-rows: auto 1fr 200px;
-        }
+    #game-container {
+      display: none;
+      height: 100%;
+      grid-template-columns: 1fr 300px;
+      grid-template-rows: auto 1fr 200px;
+    }
 
-        #header {
-            grid-column: 1 / 3;
-            background-color: #16213e;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    #header {
+      background-color: #16213e;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        #game-view {
-            background-color: #0f3460;
-            position: relative;
-            overflow: hidden;
-        }
+    #game-view {
+      background-color: #0f3460;
+      position: relative;
+      overflow: hidden;
+    }
 
-        #inventory {
-            background-color: #16213e;
-            padding: 10px;
-            overflow-y: auto;
-        }
+    #inventory {
+      background-color: #16213e;
+      padding: 10px;
+      overflow-y: auto;
+    }
 
-        #chat {
-            grid-column: 1 / 3;
-            background-color: #0f3460;
-            border-top: 2px solid #e94560;
-            display: flex;
-            flex-direction: column;
-        }
+    #chat {
+      background-color: #0f3460;
+      border-top: 2px solid #e94560;
+      display: flex;
+      flex-direction: column;
+    }
 
-        #messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
+    #messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
 
-        #chat-form {
-            display: flex;
-            padding: 10px;
-        }
+    #chat-form {
+      display: flex;
+      padding: 10px;
+    }
 
-        #chat-input {
-            flex-grow: 1;
-            padding: 8px;
-            background-color: #1a1a2e;
-            border: 1px solid #e94560;
-            color: white;
-        }
+    #chat-input {
+      flex-grow: 1;
+      padding: 8px;
+      background-color: #1a1a2e;
+      border: 1px solid #e94560;
+      color: white;
+    }
 
-        .room-input {
-            padding: 10px;
-            margin: 10px;
-            width: 200px;
-            background-color: #f8f8f2;
-            border: 2px solid #8b4513;
-            border-radius: 5px;
-            color: #1a1a2e;
-            font-family: 'Courier New', monospace;
-        }
+    .scene-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-        .game-object {
-            position: absolute;
-            cursor: pointer;
-            transition: transform 0.2s;
-            background-color: rgba(0,0,0,0.5);
-            padding: 5px;
-            border-radius: 3px;
-        }
+    #player1-scene img {
+      background: url('https://placeholder.pics/svg/800x600/DEDEDE/555555/Player+1+-+Portrait+Room')  no-repeat center center;
+      background-size: cover;
+    }
 
-        .game-object:hover {
-            transform: scale(1.05);
-            background-color: rgba(233, 69, 96, 0.5);
-        }
+    #player2-scene img {
+      background: url('https://placeholder.pics/svg/800x600/DEDEDE/555555/Player+2+-+Decaying+Ballroom')  no-repeat center center;
+      background-size: cover;
+    }
 
-        .inventory-item {
-            background-color: #1a1a2e;
-            padding: 8px;
-            margin: 5px 0;
-            cursor: pointer;
-            border: 1px solid #e94560;
-        }
+    #hint-popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #16213e;
+      padding: 20px;
+      border: 3px solid #e94560;
+      z-index: 100;
+      max-width: 80%;
+    }
 
-        .inventory-item:hover {
-            background-color: #e94560;
-        }
+    #hint-popup h3 {
+      margin-top: 0;
+      color: #e94560;
+    }
 
-        .message {
-            margin: 5px 0;
-            padding: 5px;
-            border-radius: 5px;
-            background-color: #1a1a2e;
-        }
+    #close-hint {
+      margin-top: 10px;
+    }
 
-        .player-1 {
-            color: #4cc9f0;
-        }
+    .progress-bar {
+      height: 10px;
+      background-color: #1a1a2e;
+      margin: 10px 0;
+      border-radius: 5px;
+      overflow: hidden;
+      width: 200px;
+    }
 
-        .player-2 {
-            color: #f72585;
-        }
+    .progress {
+      height: 100%;
+      background-color: #e94560;
+      width: 0%;
+      transition: width 0.5s;
+    }
 
-        #player-role {
-            font-weight: bold;
-            color: #e94560;
-        }
+    .message {
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 5px;
+      background-color: #1a1a2e;
+    }
 
-        #room-code {
-            font-family: monospace;
-            letter-spacing: 2px;
-            background-color: #1a1a2e;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
+    .player-1 {
+      color: #4cc9f0;
+    }
 
-        .progress-bar {
-            height: 10px;
-            background-color: #1a1a2e;
-            margin: 10px 0;
-            border-radius: 5px;
-            overflow: hidden;
-            width: 200px;
-        }
-        
-        .progress {
-            height: 100%;
-            background-color: #e94560;
-            width: 0%;
-            transition: width 0.5s;
-        }
-        
-        .puzzle-hint {
-            background-color: #16213e;
-            padding: 10px;
-            margin: 10px 0;
-            border-left: 3px solid #e94560;
-        }
+    .player-2 {
+      color: #f72585;
+    }
 
-        .scene-bg {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    #player-role {
+      font-weight: bold;
+      color: #e94560;
+    }
 
-        #hint-popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #16213e;
-            padding: 20px;
-            border: 3px solid #e94560;
-            z-index: 100;
-            max-width: 80%;
-        }
+    #room-code {
+      font-family: monospace;
+      letter-spacing: 2px;
+      background-color: #1a1a2e;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
 
-        #hint-popup h3 {
-            margin-top: 0;
-            color: #e94560;
-        }
-
-        #close-hint {
-            margin-top: 10px;
-        }
-
-        .combined-object {
-            position: absolute;
-            cursor: pointer;
-            background-color: rgba(79, 192, 240, 0.5);
-            padding: 5px;
-            border-radius: 3px;
-        }
-
-        #player1-scene .scene-bg {
-            background: url('/static/images/ship_deck.png') no-repeat center center;
-            background-size: cover;
-        }
-
-        #player2-scene .scene-bg {
-            background: url('/static/images/island_beach.png') no-repeat center center;
-            background-size: cover;
-        }
-
-        #audio-controls {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #audio-controls input[type="range"] {
-            width: 100px;
-        }
-
-        @media (max-width: 768px) {
-            #game-container {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
-            }
-
-            #inventory {
-                grid-row: 3;
-            }
-
-            #chat {
-                grid-row: 2;
-            }
-        }
-
-        #next-room {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #16213e;
-            padding: 20px;
-            border: 3px solid #e94560;
-            z-index: 100;
-            max-width: 80%;
-            color: #f8f8f2;
-            text-align: center;
-        }
-
-        #next-room h1 {
-            margin-top: 0;
-            color: #e94560;
-        }
-
-        #next-room button {
-            margin-top: 10px;
-            background-color: #e94560;
-            color: #1a1a2e;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            border-radius: 5px;
-            transition: all 0.2s ease;
-        }
-
-        #next-room button:hover {
-            background-color: #d03447;
-        }
-    </style>
+    @media (max-width: 768px) {
+      #game-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Lobby Screen -->
-    <div id="lobby">
-        <h1>Pirate Escape</h1>
-        <p>A 2-player cooperative adventure</p>
 
-        <div id="create-game" class="lobby-section">
-            <h2>Create Game</h2>
-            <input type="text" id="player1-name" class="room-input" placeholder="Your Name">
-            <button id="create-btn">Create Room</button>
-        </div>
+<!-- Lobby Screen -->
+<div id="lobby">
+  <h1>Ballroom Escape</h1>
+  <p>A 2-player cooperative puzzle</p>
+  <div id="create-game">
+    <h2>Create Game</h2>
+    <input type="text" id="player1-name" class="room-input" placeholder="Your Name">
+    <button id="create-btn">Create Room</button>
+  </div>
+  <div id="join-game">
+    <h2>Join Game</h2>
+    <input type="text" id="player2-name" class="room-input" placeholder="Your Name">
+    <input type="text" id="room-id" class="room-input" placeholder="Room Code">
+    <button id="join-btn">Join Room</button>
+  </div>
+</div>
 
-        <div id="join-game" class="lobby-section">
-            <h2>Join Game</h2>
-            <input type="text" id="player2-name" class="room-input" placeholder="Your Name">
-            <input type="text" id="room-id" class="room-input" placeholder="Room Code">
-            <button id="join-btn">Join Room</button>
-        </div>
+<!-- Game Screen -->
+<div id="game-container">
+  <div id="header">
+    <div>
+      <span id="player-role">Player 1</span> | 
+      Room: <span id="room-code-display">AAAA</span>
+      <div class="progress-bar">
+        <div class="progress" id="game-progress"></div>
+      </div>
     </div>
-
-    <!-- Game Screen -->
-    <div id="game-container">
-        <div id="header">
-            <div>
-                <span id="player-role">First Mate</span> | 
-                Room: <span id="room-code-display">AAAA</span>
-                <div class="progress-bar">
-                    <div class="progress" id="game-progress"></div>
-                </div>
-            </div>
-            <div>
-                <button id="hint-btn">Hint</button>
-                <button id="leave-btn">Leave Game</button>
-            </div>
-        </div>
-
-        <div id="game-view">
-            <!-- Player 1 sees the ship deck -->
-            <div id="player1-scene" class="scene" style="display: none;">
-                <img src="https://placeholder.pics/svg/800x600/DEDEDE/555555/Ship%20Deck" alt="Ship Deck" class="scene-bg">
-                <div class="game-object" style="top: 200px; left: 100px;" data-object="chest">Treasure Chest</div>
-                <div class="game-object" style="top: 300px; left: 400px;" data-object="wheel">Ship's Wheel</div>
-                <div class="game-object" style="top: 150px; left: 600px;" data-object="telescope">Telescope</div>
-                <div class="game-object" style="top: 400px; left: 200px; display: none;" data-object="log">Ship's Log</div>
-                <div class="game-object" style="top: 250px; left: 500px; display: none;" data-object="lever">Mysterious Lever</div>
-            </div>
-
-            <!-- Player 2 sees the island beach -->
-            <div id="player2-scene" class="scene" style="display: none;">
-                <img src="https://placeholder.pics/svg/800x600/DEDEDE/555555/Island%20Beach" alt="Island Beach" class="scene-bg">
-                <div class="game-object" style="top: 250px; left: 150px;" data-object="palm">Palm Tree</div>
-                <div class="game-object" style="top: 350px; left: 450px;" data-object="cave">Cave Entrance</div>
-                <div class="game-object" style="top: 200px; left: 650px;" data-object="map">Strange Markings</div>
-                <div class="game-object" style="top: 500px; left: 300px; display: none;" data-object="bridge">Wooden Bridge</div>
-                <div class="game-object" style="top: 400px; left: 200px; display: none;" data-object="artifact">Golden Artifact</div>
-            </div>
-        </div>
-
-        <div id="inventory">
-            <h3>Inventory</h3>
-            <div id="inventory-items">
-                <!-- Items will be added dynamically -->
-            </div>
-            <div class="puzzle-hint" id="current-hint">
-                <h4>Current Objective</h4>
-                <p id="hint-text">Find a way to open the treasure chest.</p>
-            </div>
-        </div>
-
-        <div id="chat">
-            <div id="messages"></div>
-            <form id="chat-form">
-                <input type="text" id="chat-input" placeholder="Type your message...">
-                <button type="submit">Send</button>
-            </form>
-        </div>
+    <div>
+      <button id="hint-btn">Hint</button>
+      <button id="leave-btn">Leave Game</button>
     </div>
+  </div>
+  <div id="game-view">
+    <!-- Player 1 Scene -->
+    <div id="player1-scene" class="scene" style="display:none;">
+      <img src="" alt="Player 1 View" class="scene-bg">
+      <p style="position: absolute; top: 10px; left: 10px;">You see a portrait with numbers on the curtain: <strong>3, 5, 1</strong></p>
+    </div>
+    <!-- Player 2 Scene -->
+    <div id="player2-scene" class="scene" style="display:none;">
+      <img src="" alt="Player 2 View" class="scene-bg">
+      <p style="position: absolute; top: 10px; left: 10px;">You see a damaged floor near a fireplace with red curtains.</p>
+    </div>
+  </div>
+  <div id="inventory">
+    <h3>Puzzle Objective</h3>
+    <div id="hint-text">Find the sequence "3, 5, 1" and use it to unlock the hidden mechanism under the ballroom floor.</div>
+  </div>
+  <div id="chat">
+    <div id="messages"></div>
+    <form id="chat-form">
+      <input type="text" id="chat-input" placeholder="Type your message...">
+      <button type="submit">Send</button>
+    </form>
+  </div>
+</div>
+
+<!-- Hint Popup -->
+<div id="hint-popup">
+  <h3>Need a Hint?</h3>
+  <div id="hint-content">The number sequence "3, 5, 1" from Player 1's view should be used on the cracked tiles in Player 2's view.</div>
+  <button id="close-hint">Close</button>
+</div>
+
+<script>
+  const gameState = {
+    player: null,
+    roomId: null,
+    playerName: null,
+    partnerName: null,
+    solved: false
+  };
+
+  const lobby = document.getElementById('lobby');
+  const gameContainer = document.getElementById('game-container');
+  const createBtn = document.getElementById('create-btn');
+  const joinBtn = document.getElementById('join-btn');
+  const leaveBtn = document.getElementById('leave-btn');
+  const player1Scene = document.getElementById('player1-scene');
+  const player2Scene = document.getElementById('player2-scene');
+  const playerRole = document.getElementById('player-role');
+  const roomCodeDisplay = document.getElementById('room-code-display');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const messages = document.getElementById('messages');
+  const hintText = document.getElementById('hint-text');
+  const hintPopup = document.getElementById('hint-popup');
+  const hintContent = document.getElementById('hint-content');
+  const closeHint = document.getElementById('close-hint');
+
+  function startGame() {
+    lobby.style.display = 'none';
+    gameContainer.style.display = 'grid';
+
+    if (gameState.player === 1) {
+      playerRole.textContent = "Player 1";
+      player1Scene.style.display = 'block';
+    } else {
+      playerRole.textContent = "Player 2";
+      player2Scene.style.display = 'block';
+    }
+
+    roomCodeDisplay.textContent = gameState.roomId;
+
+    addMessage(`System: You are connected with ${gameState.partnerName}!`);
+    addMessage(`System: Work together to solve the puzzle!`);
+  }
+
+  function addMessage(text, playerClass = "") {
+    const message = document.createElement('div');
+    message.className = `message ${playerClass}`;
+    message.textContent = text;
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  createBtn.addEventListener('click', () => {
+    const name = document.getElementById('player1-name').value.trim();
+    if (!name) return alert("Enter your name");
+    const roomId = Math.random().toString(36).substr(2, 4).toUpperCase();
+    gameState.player = 1;
+    gameState.roomId = roomId;
+    gameState.playerName = name;
+    gameState.partnerName = "Player 2";
+    setTimeout(() => {
+      startGame();
+    }, 1000);
+    alert(`Room created! Share this code: ${roomId}`);
+  });
+
+  joinBtn.addEventListener('click', () => {
+    const name = document.getElementById('player2-name').value.trim();
+    const code = document.getElementById('room-id').value.trim().toUpperCase();
+    if (!name || !code || code.length !== 4) return alert("Enter a valid name and 4-character room code");
+    gameState.player = 2;
+    gameState.roomId = code;
+    gameState.playerName = name;
+    gameState.partnerName = "Player 1";
+    startGame();
+  });
+
+  leaveBtn.addEventListener('click', () => {
+    if (confirm("Leave the game?")) {
+      gameContainer.style.display = 'none';
+      lobby.style.display = 'flex';
+      gameState.player = null;
+      gameState.roomId = null;
+      messages.innerHTML = '';
+    }
+  });
+
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+    const role = gameState.player === 1 ? "Player 1" : "Player 2";
+    const cls = gameState.player === 1 ? "player-1" : "player-2";
+    addMessage(`${role}: ${msg}`, cls);
+    chatInput.value = '';
+  });
+
+  hintBtn.addEventListener('click', () => {
+    hintPopup.style.display = 'block';
+  });
+
+  closeHint.addEventListener('click', () => {
+    hintPopup.style.display = 'none';
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === hintPopup) {
+      hintPopup.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blackwoods Secret - Lobby</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a2e;
+            color: #f8f8f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #lobby {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding-top: 400px; 
+            background: url('/static/images/lobyBackground.png') no-repeat center center;
+            background-size: cover;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+
+        h1, h2 {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        .room-input {
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            background-color: #f8f2f2;
+            border: 2px solid #D4AF37;
+            border-radius: 5px;
+            color: #1a1a2e;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            background-color: #D4AF37;
+            color: #f8f8f2;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border-radius: 5px;
+            box-shadow: 0 4px #5a2e0c;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #a0522d;
+            box-shadow: 0 6px #5a2e0c;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            box-shadow: 0 2px #5a2e0c;
+            transform: translateY(2px);
+        }
+    </style>
+</head>
+<body>
+  <!-- Lobby Screen -->
+  <div id="lobby">
+    <div id="create-game" class="lobby-section">
+      <h2>Create Game</h2>
+      <input type="text" id="player1-name" class="room-input" placeholder="Your Name" />
+      <button id="create-btn">Create Room</button>
+    </div>
+
+    <div id="join-game" class="lobby-section">
+      <h2>Join Game</h2>
+      <input type="text" id="player2-name" class="room-input" placeholder="Your Name" />
+      <input type="text" id="room-id" class="room-input" placeholder="Room Code" />
+      <button id="join-btn">Join Room</button>
+    </div>
+  </div>
+</body>
+</html>

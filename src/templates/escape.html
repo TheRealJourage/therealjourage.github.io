@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pirate Escape - 2 Player Adventure</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a2e;
+            color: #f8f8f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #lobby {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+        }
+
+        #game-container {
+            display: none;
+            height: 100%;
+            grid-template-columns: 1fr 300px;
+            grid-template-rows: auto 1fr 200px;
+        }
+
+        #header {
+            grid-column: 1 / 3;
+            background-color: #16213e;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #game-view {
+            background-color: #0f3460;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #inventory {
+            background-color: #16213e;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        #chat {
+            grid-column: 1 / 3;
+            background-color: #0f3460;
+            border-top: 2px solid #e94560;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        #chat-form {
+            display: flex;
+            padding: 10px;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            padding: 8px;
+            background-color: #1a1a2e;
+            border: 1px solid #e94560;
+            color: white;
+        }
+
+        button {
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #ff6b81;
+        }
+
+        .room-input {
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            background-color: #1a1a2e;
+            border: 1px solid #e94560;
+            color: white;
+        }
+
+        .game-object {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .game-object:hover {
+            transform: scale(1.05);
+        }
+
+        .inventory-item {
+            background-color: #1a1a2e;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            border: 1px solid #e94560;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #1a1a2e;
+        }
+
+        .player-1 {
+            color: #4cc9f0;
+        }
+
+        .player-2 {
+            color: #f72585;
+        }
+
+        #player-role {
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        #room-code {
+            font-family: monospace;
+            letter-spacing: 2px;
+            background-color: #1a1a2e;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Lobby Screen -->
+    <div id="lobby">
+        <h1>Pirate Escape</h1>
+        <p>A 2-player cooperative adventure</p>
+        
+        <div id="create-game" class="lobby-section">
+            <h2>Create Game</h2>
+            <input type="text" id="player1-name" class="room-input" placeholder="Your Name">
+            <button id="create-btn">Create Room</button>
+        </div>
+        
+        <div id="join-game" class="lobby-section">
+            <h2>Join Game</h2>
+            <input type="text" id="player2-name" class="room-input" placeholder="Your Name">
+            <input type="text" id="room-id" class="room-input" placeholder="Room Code">
+            <button id="join-btn">Join Room</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-container">
+        <div id="header">
+            <div>
+                <span id="player-role">First Mate</span> | 
+                Room: <span id="room-code-display">AAAA</span>
+            </div>
+            <div>
+                <button id="hint-btn">Hint</button>
+                <button id="leave-btn">Leave Game</button>
+            </div>
+        </div>
+
+        <div id="game-view">
+            <!-- Player 1 sees the ship deck -->
+            <div id="player1-scene" class="scene" style="display: none;">
+                <img src="https://placeholder.pics/svg/800x600/DEDEDE/555555/Ship%20Deck" alt="Ship Deck" class="scene-bg">
+                <div class="game-object" style="top: 200px; left: 100px;" data-object="chest">Treasure Chest</div>
+                <div class="game-object" style="top: 300px; left: 400px;" data-object="wheel">Ship's Wheel</div>
+                <div class="game-object" style="top: 150px; left: 600px;" data-object="telescope">Telescope</div>
+            </div>
+
+            <!-- Player 2 sees the island beach -->
+            <div id="player2-scene" class="scene" style="display: none;">
+                <img src="https://placeholder.pics/svg/800x600/DEDEDE/555555/Island%20Beach" alt="Island Beach" class="scene-bg">
+                <div class="game-object" style="top: 250px; left: 150px;" data-object="palm">Palm Tree</div>
+                <div class="game-object" style="top: 350px; left: 450px;" data-object="cave">Cave Entrance</div>
+                <div class="game-object" style="top: 200px; left: 650px;" data-object="map">Strange Markings</div>
+            </div>
+        </div>
+
+        <div id="inventory">
+            <h3>Inventory</h3>
+            <div id="inventory-items">
+                <div class="inventory-item" data-item="key">Rusty Key</div>
+                <div class="inventory-item" data-item="note">Torn Note</div>
+            </div>
+        </div>
+
+        <div id="chat">
+            <div id="messages">
+                <div class="message player-1">First Mate: I found a locked chest here!</div>
+                <div class="message player-2">Captain: There's a cave here with strange symbols</div>
+            </div>
+            <form id="chat-form">
+                <input type="text" id="chat-input" placeholder="Type your message...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            player: null,
+            roomId: null,
+            playerName: null,
+            partnerName: null,
+            inventory: ['key', 'note']
+        };
+
+        // DOM elements
+        const lobby = document.getElementById('lobby');
+        const gameContainer = document.getElementById('game-container');
+        const createBtn = document.getElementById('create-btn');
+        const joinBtn = document.getElementById('join-btn');
+        const leaveBtn = document.getElementById('leave-btn');
+        const player1Scene = document.getElementById('player1-scene');
+        const player2Scene = document.getElementById('player2-scene');
+        const playerRole = document.getElementById('player-role');
+        const roomCodeDisplay = document.getElementById('room-code-display');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const messages = document.getElementById('messages');
+
+        // Mock "network" functions
+        function createRoom(playerName) {
+            // In a real app, this would call a server
+            const roomId = Math.random().toString(36).substr(2, 4).toUpperCase();
+            gameState.player = 1;
+            gameState.playerName = playerName;
+            gameState.roomId = roomId;
+            
+            // Simulate partner joining after 1 second
+            setTimeout(() => {
+                gameState.partnerName = "Captain";
+                startGame();
+            }, 1000);
+            
+            return roomId;
+        }
+
+        function joinRoom(playerName, roomId) {
+            // In a real app, this would call a server
+            gameState.player = 2;
+            gameState.playerName = playerName;
+            gameState.roomId = roomId;
+            gameState.partnerName = "First Mate";
+            
+            startGame();
+            return true;
+        }
+
+        function startGame() {
+            lobby.style.display = 'none';
+            gameContainer.style.display = 'grid';
+            
+            if (gameState.player === 1) {
+                playerRole.textContent = "First Mate";
+                player1Scene.style.display = 'block';
+            } else {
+                playerRole.textContent = "Captain";
+                player2Scene.style.display = 'block';
+            }
+            
+            roomCodeDisplay.textContent = gameState.roomId;
+            
+            // Add welcome message
+            addMessage(`System: You are connected with ${gameState.partnerName}!`);
+            addMessage(`System: Work together to solve the puzzles and escape!`);
+        }
+
+        function addMessage(text, playerClass = "") {
+            const message = document.createElement('div');
+            message.className = `message ${playerClass}`;
+            message.textContent = text;
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Event listeners
+        createBtn.addEventListener('click', () => {
+            const playerName = document.getElementById('player1-name').value.trim();
+            if (!playerName) {
+                alert("Please enter your name");
+                return;
+            }
+            
+            const roomId = createRoom(playerName);
+            alert(`Room created! Share this code with your partner: ${roomId}`);
+        });
+
+        joinBtn.addEventListener('click', () => {
+            const playerName = document.getElementById('player2-name').value.trim();
+            const roomId = document.getElementById('room-id').value.trim().toUpperCase();
+            
+            if (!playerName) {
+                alert("Please enter your name");
+                return;
+            }
+            
+            if (!roomId || roomId.length !== 4) {
+                alert("Please enter a valid 4-character room code");
+                return;
+            }
+            
+            const success = joinRoom(playerName, roomId);
+            if (!success) {
+                alert("Could not join room. Please check the code and try again.");
+            }
+        });
+
+        leaveBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to leave the game?")) {
+                // In a real app, would notify server
+                gameContainer.style.display = 'none';
+                lobby.style.display = 'flex';
+            }
+        });
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (message) {
+                const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
+                const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
+                addMessage(`${playerName}: ${message}`, playerClass);
+                chatInput.value = '';
+                
+                // In a real app, would send to server/other player
+            }
+        });
+
+        // Game object interaction
+        document.querySelectorAll('.game-object').forEach(obj => {
+            obj.addEventListener('click', function() {
+                const objectName = this.getAttribute('data-object');
+                const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
+                const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
+                
+                // Different interactions based on object
+                let message = "";
+                if (objectName === 'chest') {
+                    message = "The chest is locked. It has a strange keyhole.";
+                } else if (objectName === 'wheel') {
+                    message = "The ship's wheel is stuck. Maybe we need to find something to loosen it.";
+                } else if (objectName === 'telescope') {
+                    message = "Looking through the telescope, I can see something written on the island...";
+                } else if (objectName === 'palm') {
+                    message = "There's something shiny in the palm tree. Too high to reach.";
+                } else if (objectName === 'cave') {
+                    message = "The cave entrance is blocked by rocks. There are symbols carved above it.";
+                } else if (objectName === 'map') {
+                    message = "These markings look like a code or cipher. Maybe it's useful for something?";
+                }
+                
+                addMessage(`${playerName}: [Examined ${objectName}] ${message}`, playerClass);
+            });
+        });
+
+        // Inventory interaction
+        document.querySelectorAll('.inventory-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const itemName = this.getAttribute('data-item');
+                const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
+                const playerName = gameState.player === 1 ? 'First Mate' : 'Captain';
+                
+                let message = "";
+                if (itemName === 'key') {
+                    message = "A rusty old key. Maybe it fits the chest?";
+                } else if (itemName === 'note') {
+                    message = "The note says: 'The wheel turns when the moon is full'";
+                }
+                
+                addMessage(`${playerName}: [Used ${itemName}] ${message}`, playerClass);
+            });
+        });
+    </script>
+</body>
+</html>

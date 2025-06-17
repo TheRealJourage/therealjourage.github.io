@@ -258,12 +258,12 @@
         }
 
         #player1-scene .scene-bg {
-            background: url('/static/images/ship_deck.png') no-repeat center center;
+            background: url('src/static/images/ship_deck.png') no-repeat center center;
             background-size: cover;
         }
 
         #player2-scene .scene-bg {
-            background: url('/static/images/island_beach.png') no-repeat center center;
+            background: url('src/static/images/island_beach.png') no-repeat center center;
             background-size: cover;
         }
 
@@ -372,7 +372,7 @@
         <div id="game-view">
             <!-- Player 1 sees the study room -->
             <div id="player1-scene" class="scene" style="display: none;">
-                <img src="../static/images/study_room.png" alt="Study Room" class="scene-bg">
+                <img src="src/static/images/study_room.png" alt="Study Room" class="scene-bg">
                 <div class="game-object" style="top: 270px; left: 320px;" data-object="lamp">Lamp</div>
                 <div class="game-object" style="top: 375px; left: 230px;" data-object="typewriter">Typewriter</div>
                 <div class="game-object" style="top: 150px; left: 800px;" data-object="portrait">Portrait</div>
@@ -380,7 +380,7 @@
 
             <!-- Player 1 second scene: hidden library -->
             <div id="player1-scene-2" class="scene" style="display: none;">
-                <img src="../static/images/library_room.png" alt="Library Room" class="scene-bg">
+                <img src="src/static/images/library_room.png" alt="Library Room" class="scene-bg">
                 <div class="game-object" style="top: 200px; left: 300px;" data-object="chest">Chest</div>
                 <div class="game-object" style="top: 350px; left: 600px;" data-object="bookshelf">Bookshelf</div>
                 <div class="game-object" style="top: 220px; left: 800px;" data-object="candle">Candle</div>
@@ -388,19 +388,19 @@
 
             <!-- Player 2 -->
        <div id="player2-scene" class="scene" style="display: none;">
-    <img src="../static/images/abonded_lab.png" alt="Laboratory" class="scene-bg">
+    <img src="src/static/images/abonded_lab.png" alt="Laboratory" class="scene-bg">
     <div class="game-object" style="top: 350px; left: 450px;" data-object="bloodStainedTable">Blood-stained Table</div>
     <div class="game-object" style="top: 200px; left: 650px;" data-object="chalkboard">chalkboard</div>
 </div>
 
 <div id="player2-scene-2" class="scene" style="display: none;">
-    <img src="../static/images/securityRoom.png" alt="Securety Room" class="scene-bg">
+    <img src="src/static/images/securityRoom.png" alt="Securety Room" class="scene-bg">
     <div class="game-object" style="top: 400px; left: 200px;" data-object="bridge">Wooden Bridge</div>
     <div class="game-object" style="top: 300px; left: 550px;" data-object="artifact">Golden Artifact</div>
 </div>
 
 <div id="final-stage" class="scene" style="display: none;">
-    <img src="../static/images/inland_scene.png" alt="Inland Scene" class="scene-bg">
+    <img src="src/static/images/inland_scene.png" alt="Inland Scene" class="scene-bg">
     <div class="game-object" style="top: 400px; left: 200px;" data-object="bridge">Wooden Bridge</div>
     <div class="game-object" style="top: 300px; left: 550px;" data-object="artifact">Golden Artifact</div>
 </div>
@@ -458,8 +458,8 @@
         <button id="mute-toggle">Mute</button>
     </div>
 
-    <script src="../static/js/animations.js"></script>
-      <script src="../static/js/game.js"></script>
+    <script src="src/static/js/animations.js"></script>
+      <script src="src/static/js/game.js"></script>
     <!-- <script>
         // Game State
         const gameState = {

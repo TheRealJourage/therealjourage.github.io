@@ -371,7 +371,8 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.95);
+    background: url('../static/images/waiting_room.png') no-repeat center center;
+    background-size: cover;
     z-index: 300;
     justify-content: center;
     align-items: center;
@@ -385,6 +386,36 @@
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
     background: #000;
+}
+
+/* Transition Overlay */
+#transition-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: url('../static/images/lobyBackground.png') no-repeat center center;
+    background-size: cover;
+    z-index: 400;
+    justify-content: center;
+    align-items: center;
+}
+
+#transition-message {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10vh;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 16px;
+    padding: 32px 48px;
+    min-width: 320px;
+    text-align: center;
+    color: #fff;
+    font-size: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
     </style>
 </head>
@@ -519,12 +550,21 @@
 </div>
 
     <!-- Intro Video Overlay -->
-    <div id="intro-video-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.95); z-index:300; justify-content:center; align-items:center;">
+    <div id="intro-video-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:300; justify-content:center; align-items:center;">
       <video id="intro-video" width="960" height="540" style="max-width:90vw; max-height:90vh; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.7); background:#000;" controls>
         <source src="../static/videos/intro.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
 
+    <!-- Transition Overlay -->
+    <div id="transition-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:url('../static/images/lobyBackground.png') no-repeat center center; background-size:cover; z-index:400; justify-content:center; align-items:center;">
+      <div id="transition-message" style="position:absolute; left:50%; transform:translateX(-50%); bottom:10vh; background:rgba(0,0,0,0.7); border-radius:16px; padding:32px 48px; min-width:320px; text-align:center; color:#fff; font-size:2rem; box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+        Proceeding to the next room...
+      </div>
+    </div>
+
     <script src="../static/js/animations.js"></script>
       <script src="../static/js/game.js"></script>
+  </body>
+</html>

@@ -23,12 +23,12 @@ window.addEventListener('DOMContentLoaded', () => {
         partnerName: null,
         finished: false,
         riddleState: {
-            lamp: { question: "Born of fire but tamed by wire, I stand guard through shadows dire. I reveal truth but have none of my own. What am I?", answer: "light", solved: false },
-            typewriter: { question: "I echo thoughts in metal and ink, though I cannot feel or think. Once I start, I never speak — yet all your secrets I may leak. What am I?", answer: "memory", solved: false },
-            portrait: { question: "A reflection I hold, but not your face. I freeze a soul in a gilded place. I watch, I wait, with painted grace. What am I?", answer: "past", solved: false },
-            chest: { question: "I keep what’s precious out of sight. I lock away both day and night. Though I hold, I do not cling — you must answer to see what I bring. What am I?", answer: "secret", solved: false },
-            bookshelf: { question: "I carry countless voices quiet, stories ancient, knowledge private. I never move, but minds I steer. What am I?", answer: "wisdom", solved: false },
-            candle: { question: "I vanish while I shine. I feed on breath but make no sound. My death is slow, my life is bright. What am I?", answer: "flame", solved: false },
+            lamp: { question: "Born of fire but tamed by wire, I stand guard through shadows dire. I reveal truth but have none of my own. What am I?", answer: "1", solved: false },
+            typewriter: { question: "I echo thoughts in metal and ink, though I cannot feel or think. Once I start, I never speak — yet all your secrets I may leak. What am I?", answer: "1", solved: false },
+            portrait: { question: "A reflection I hold, but not your face. I freeze a soul in a gilded place. I watch, I wait, with painted grace. What am I?", answer: "1", solved: false },
+            chest: { question: "I keep what’s precious out of sight. I lock away both day and night. Though I hold, I do not cling — you must answer to see what I bring. What am I?", answer: "1", solved: false },
+            bookshelf: { question: "I carry countless voices quiet, stories ancient, knowledge private. I never move, but minds I steer. What am I?", answer: "1", solved: false },
+            candle: { question: "I vanish while I shine. I feed on breath but make no sound. My death is slow, my life is bright. What am I?", answer: "1", solved: false },
             palm: { question: "I wave without hands and dance without feet. What am I?", answer: "1", solved: false },
             chalkboard: { question: "I hide treasures deep inside me. What am I?", answer: "1", solved: false },
             bloodStainedTable: { question: "I guide lost souls but I’m not alive. What am I?", answer: "1", solved: false },
@@ -64,6 +64,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const waitingMessages = document.getElementById('waiting-messages');
     const introVideoOverlay = document.getElementById('intro-video-overlay');
     const introVideo = document.getElementById('intro-video');
+    const transitionOverlay = document.getElementById('transition-overlay');
+    const transitionMessage = document.getElementById('transition-message');
 
     function sendMessage(msg, role) {
         db.collection("rooms").doc(gameState.roomId).collection("messages").add({
@@ -111,7 +113,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 div.textContent = "System: Both players are ready! Proceeding to the final stage...";
                 messages.appendChild(div);
                 messages.scrollTop = messages.scrollHeight;
+                showTransitionOverlay();
                 setTimeout(() => {
+                    hideTransitionOverlay();
                     player1Scene2.style.display = "none";
                     player2Scene2.style.display = "none";
                     finalScene.style.display = 'block';
@@ -159,26 +163,47 @@ window.addEventListener('DOMContentLoaded', () => {
             const player2Set1 = ['palm', 'chalkboard', 'bloodStainedTable'];
             const player2Set2 = ['bridge', 'artifact'];
 
-            if (gameState.player === 1 && player1Set1.every(k => gameState.riddleState[k].solved)) {
-                player1Scene.style.display = 'none';
-                player1Scene2.style.display = 'block';
-                sendMessage("Detective A completed Study Room.", "System");
+            // Only show transition if this is the last unsolved riddle in the set
+            function isLastUnsolved(set) {
+                return set.filter(k => !gameState.riddleState[k].solved).length === 0 && set.includes(objectName);
             }
 
-            if (gameState.player === 1 && player1Set2.every(k => gameState.riddleState[k].solved)) {
-                sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
-                updateFinishState();
+            if (gameState.player === 1 && isLastUnsolved(player1Set1)) {
+                showTransitionOverlay();
+                setTimeout(() => {
+                    hideTransitionOverlay();
+                    player1Scene.style.display = 'none';
+                    player1Scene2.style.display = 'block';
+                    sendMessage("Detective A completed Study Room.", "System");
+                }, 1500);
             }
 
-            if (gameState.player === 2 && player2Set1.every(k => gameState.riddleState[k].solved)) {
-                player2Scene.style.display = 'none';
-                player2Scene2.style.display = 'block';
-                sendMessage("Detective B completed Labo.", "System");
+            if (gameState.player === 1 && isLastUnsolved(player1Set2)) {
+                showTransitionOverlay();
+                setTimeout(() => {
+                    hideTransitionOverlay();
+                    sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
+                    updateFinishState();
+                }, 1500);
             }
 
-            if (gameState.player === 2 && player2Set2.every(k => gameState.riddleState[k].solved)) {
-                sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
-                updateFinishState();
+            if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
+                showTransitionOverlay();
+                setTimeout(() => {
+                    hideTransitionOverlay();
+                    player2Scene.style.display = 'none';
+                    player2Scene2.style.display = 'block';
+                    sendMessage("Detective B completed Labo.", "System");
+                }, 1500);
+            }
+
+            if (gameState.player === 2 && isLastUnsolved(player2Set2)) {
+                showTransitionOverlay();
+                setTimeout(() => {
+                    hideTransitionOverlay();
+                    sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
+                    updateFinishState();
+                }, 1500);
             }
 
         } else {
@@ -261,6 +286,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
         gameObjects.forEach(obj => obj.addEventListener('click', handleRiddleClick));
         listenForMessages();
+    }
+
+    function showTransitionOverlay(message = 'Proceeding to the next room...') {
+        transitionMessage.textContent = message;
+        transitionOverlay.style.display = 'flex';
+    }
+    function hideTransitionOverlay() {
+        transitionOverlay.style.display = 'none';
     }
 
     createBtn.addEventListener('click', () => {

@@ -62,6 +62,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const gameObjects = document.querySelectorAll('.game-object');
     const waitingRoom = document.getElementById('waiting-room');
     const waitingMessages = document.getElementById('waiting-messages');
+    const introVideoOverlay = document.getElementById('intro-video-overlay');
+    const introVideo = document.getElementById('intro-video');
 
     function sendMessage(msg, role) {
         db.collection("rooms").doc(gameState.roomId).collection("messages").add({
@@ -195,6 +197,31 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function showIntroVideoAndStartGame() {
+        waitingRoom.style.display = 'none';
+        introVideoOverlay.style.display = 'flex';
+        introVideo.currentTime = 0;
+        introVideo.play();
+        // Only allow proceeding after video ends
+        introVideo.onended = () => {
+            introVideoOverlay.style.display = 'none';
+            startGame();
+        };
+        // Optional: allow skipping after a few seconds
+        if (!document.getElementById('skip-intro-btn')) {
+            const skipBtn = document.createElement('button');
+            skipBtn.id = 'skip-intro-btn';
+            skipBtn.textContent = 'Skip Intro';
+            skipBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
+            skipBtn.onclick = () => {
+                introVideo.pause();
+                introVideoOverlay.style.display = 'none';
+                startGame();
+            };
+            introVideoOverlay.appendChild(skipBtn);
+        }
+    }
+
     function listenForPlayers() {
         db.collection('rooms').doc(gameState.roomId).onSnapshot(doc => {
             const data = doc.data();
@@ -207,16 +234,14 @@ window.addEventListener('DOMContentLoaded', () => {
                 } else if (aJoined && bJoined) {
                     waitingMessages.innerHTML = `<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>`;
                     setTimeout(() => {
-                        waitingRoom.style.display = 'none';
-                        startGame();
+                        showIntroVideoAndStartGame();
                     }, 1200);
                 }
             } else if (gameState.player === 2) {
                 if (aJoined && bJoined) {
                     showWaitingRoom(false);
                     setTimeout(() => {
-                        waitingRoom.style.display = 'none';
-                        startGame();
+                        showIntroVideoAndStartGame();
                     }, 1200);
                 }
             }

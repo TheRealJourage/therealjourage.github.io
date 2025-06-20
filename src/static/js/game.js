@@ -1,241 +1,3 @@
-// // game.js
-
-// // Ensure all logic runs after DOM is fully loaded
-// window.addEventListener('DOMContentLoaded', () => {
-
-//     // Firebase Setup
-//     const firebaseConfig = {
-//         apiKey: "AIzaSyBs3gH6MpLbV0DlIag1B0CODKS-kTlOHEk",
-//         authDomain: "blackwoodmanor-1cde9.firebaseapp.com",
-//         projectId: "blackwoodmanor-1cde9",
-//         storageBucket: "blackwoodmanor-1cde9.appspot.com",
-//         messagingSenderId: "451127821398",
-//         appId: "1:451127821398:web:33566d0af016124e96a7f7",
-//         measurementId: "G-DSSF70V9J8"
-//     };
-//     firebase.initializeApp(firebaseConfig);
-//     const db = firebase.firestore();
-
-//     // Simplified Game State for Riddle Logic
-//     const gameState = {
-//         player: null,
-//         roomId: null,
-//         playerName: null,
-//         partnerName: null,
-//         finished: false,
-
-//         riddleState: {
-//             chest: { question: "I have a heart that doesn’t beat. What am I?", answer: "1", solved: false },
-//             wheel: { question: "What has hands but can’t clap?", answer: "1", solved: false },
-//             portrait: { question: "I speak without a mouth and hear without ears. What am I?", answer: "1", solved: false },
-//             bookshelf: { question: "The more you take, the more you leave behind. What am I?", answer: "1", solved: false },
-//             scroll: { question: "What comes once in a minute, twice in a moment, but never in a thousand years?", answer: "1", solved: false },
-//             palm: { question: "I wave without hands and dance without feet. What am I?", answer: "1", solved: false },
-//             chalkboard: { question: "I hide treasures deep inside me. What am I?", answer: "1", solved: false },
-//             bloodStainedTable: { question: "I guide lost souls but I’m not alive. What am I?", answer: "1", solved: false },
-//             bridge: { question: "I connect places but I’m not a phone. What am I?", answer: "1", solved: false },
-//             artifact: { question: "I shine in the dark but I’m not a star. What am I?", answer: "1", solved: false }
-//         }
-//     };
-
-//     const chatForm = document.getElementById('chat-form');
-//     const chatInput = document.getElementById('chat-input');
-//     const messages = document.getElementById('messages');
-//     const createBtn = document.getElementById('create-btn');
-//     const joinBtn = document.getElementById('join-btn');
-//     const playerRole = document.getElementById('player-role');
-//     const roomCodeDisplay = document.getElementById('room-code-display');
-//     const lobby = document.getElementById('lobby');
-//     const gameContainer = document.getElementById('game-container');
-//     const player1Scene = document.getElementById('player1-scene');
-//     const player2Scene = document.getElementById('player2-scene');
-//     const player1Scene2 = document.getElementById('player1-scene-2');
-//     const player2Scene2 = document.getElementById('player2-scene-2');
-//     const finalStage = document.getElementById('final-stage');
-//     finalStage.style.display = 'none';
-
-//     function sendMessage(msg, role) {
-//         db.collection("rooms").doc(gameState.roomId).collection("messages").add({
-//             sender: role,
-//             text: msg,
-//             timestamp: firebase.firestore.FieldValue.serverTimestamp()
-//         });
-//     }
-
-//     function listenForMessages() {
-//         db.collection("rooms").doc(gameState.roomId).collection("messages")
-//             .orderBy("timestamp")
-//             .onSnapshot(snapshot => {
-//                 snapshot.docChanges().forEach(change => {
-//                     if (change.type === "added") {
-//                         const data = change.doc.data();
-//                         let className = 'message';
-//                         if (data.sender === 'System') {
-//                             className += ' system';
-//                         } else if (data.sender === 'Player 1') {
-//                             className += ' player-1';
-//                         } else if (data.sender === 'Player 2') {
-//                             className += ' player-2';
-//                         }
-//                         const div = document.createElement('div');
-//                         div.className = className;
-//                         div.textContent = `${data.sender}: ${data.text}`;
-//                         messages.appendChild(div);
-//                         messages.scrollTop = messages.scrollHeight;
-//                     }
-//                 });
-//             });
-//     }
-
-//     function updateFinishState() {
-//         db.collection("rooms").doc(gameState.roomId).set({
-//             [gameState.player === 1 ? "player1Finished" : "player2Finished"]: true
-//         }, { merge: true });
-
-//         db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
-//             const data = doc.data();
-//             if (data.player1Finished && data.player2Finished) {
-//                 const div = document.createElement('div');
-//                 div.className = "message system";
-//                 div.textContent = "System: Both players are ready! Proceeding to the final stage...";
-//                 messages.appendChild(div);
-       
-//                 messages.scrollTop = messages.scrollHeight;
-//                 setTimeout(() => {
-//                            player1Scene2.style.display = "none";
-//                            player2Scene2.style.display = "none";
-//                            finalStage.style.display = 'block';
-//                 }, 2000);
-//             }
-//         });
-//     }
-
-//     function addCompletedChallenge(objectName) {
-//         const displayNames = {
-//             chest: "✅ Chest Challenge Fixed",
-//             wheel: "✅ Wheel Challenge Fixed",
-//             portrait: "✅ Portrait Challenge Fixed",
-//             bookshelf: "✅ Bookshelf Challenge Fixed",
-//             scroll: "✅ Scroll Challenge Fixed",
-//             palm: "✅ Palm Tree Challenge Fixed",
-//             chalkboard: "✅ chalkboard Challenge Fixed",
-//             bloodStainedTable: "✅ bloodStainedTable Challenge Fixed",
-//             bridge: "✅ Bridge Challenge Fixed",
-//             artifact: "✅ Artifact Challenge Fixed"
-//         };
-//         const li = document.createElement('li');
-//         li.textContent = displayNames[objectName] || `✅ ${objectName} Challenge Fixed`;
-//         challengeList.appendChild(li);
-
-//         const obj = document.querySelector(`.game-object[data-object="${objectName}"]`);
-//         if (obj) obj.classList.add("solved-object");
-//     }
-
-//     function handleRiddleClick(event) {
-//         const objectName = event.target.getAttribute('data-object');
-//         const riddle = gameState.riddleState[objectName];
-//         if (!riddle) return;
-
-//         if (riddle.solved) {
-//             alert("Already solved!");
-//             return;
-//         }
-
-//         const answer = prompt(riddle.question);
-//         if (answer && answer.trim().toLowerCase() === riddle.answer.toLowerCase()) {
-//             riddle.solved = true;
-//             sendMessage(`${gameState.playerName}: Solved the ${objectName} riddle!`, gameState.player === 1 ? 'Player 1' : 'Player 2');
-//             addCompletedChallenge(objectName);
-
-//             const player1Set1 = ['chest', 'wheel', 'portrait'];
-//             const player1Set2 = ['bookshelf', 'scroll'];
-//             const player2Set1 = ['palm', 'chalkboard', 'bloodStainedTable'];
-//             const player2Set2 = ['bridge', 'artifact'];
-
-//             if (gameState.player === 1 && player1Set1.every(k => gameState.riddleState[k].solved)) {
-//                 player1Scene.style.display = "none";
-//                 player1Scene2.style.display = "block";
-//                 sendMessage("Detective A completed Study Room.", "System");
-//             }
-
-//             if (gameState.player === 1 && player1Set2.every(k => gameState.riddleState[k].solved)) {
-//                 sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
-//                 updateFinishState();
-//             }
-
-//             if (gameState.player === 2 && player2Set1.every(k => gameState.riddleState[k].solved)) {
-//                 player2Scene.style.display = "none";
-//                 player2Scene2.style.display = "block";
-//                 sendMessage("Detective B completed Labo.", "System");
-//             }
-
-//             if (gameState.player === 2 && player2Set2.every(k => gameState.riddleState[k].solved)) {
-//                 sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
-//                 updateFinishState();
-//             }
-
-//         } else {
-//             sendMessage(`${gameState.playerName}: Tried the ${objectName} riddle but failed.`, gameState.player === 1 ? 'Player 1' : 'Player 2');
-//         }
-//     }
-
-//     function startGame() {
-//         lobby.style.display = 'none';
-//         gameContainer.style.display = 'grid';
-//         playerRole.textContent = gameState.player === 1 ? 'Player 1' : 'Player 2';
-//         roomCodeDisplay.textContent = gameState.roomId;
-//         if (gameState.player === 1) player1Scene.style.display = 'block';
-//         else player2Scene.style.display = 'block';
-
-//         const msg1 = document.createElement('div');
-//         msg1.className = 'message system';
-//         msg1.textContent = `System: You are connected with ${gameState.partnerName}!`;
-//         messages.appendChild(msg1);
-//         const msg2 = document.createElement('div');
-//         msg2.className = 'message system';
-//         msg2.textContent = 'System: Solve the riddles to unlock the path forward!';
-//         messages.appendChild(msg2);
-
-//         gameObjects.forEach(obj => obj.addEventListener('click', handleRiddleClick));
-//         listenForMessages();
-//     }
-
-//     createBtn.addEventListener('click', () => {
-//         const name = document.getElementById('player1-name').value.trim();
-//         if (!name) return alert("Please enter your name");
-//         gameState.player = 1;
-//         gameState.playerName = name;
-//         gameState.roomId = Math.random().toString(36).substr(2, 4).toUpperCase();
-//         gameState.partnerName = "Player 2";
-//         startGame();
-//         alert(`Room created! Share this code with your partner: ${gameState.roomId}`);
-//     });
-
-//     joinBtn.addEventListener('click', () => {
-//         const name = document.getElementById('player2-name').value.trim();
-//         const room = document.getElementById('room-id').value.trim().toUpperCase();
-//         if (!name) return alert("Please enter your name");
-//         if (!room || room.length !== 4) return alert("Please enter a valid 4-character room code");
-//         gameState.player = 2;
-//         gameState.playerName = name;
-//         gameState.roomId = room;
-//         gameState.partnerName = "Player 1";
-//         startGame();
-//     });
-
-//     chatForm.addEventListener('submit', e => {
-//         e.preventDefault();
-//         const msg = chatInput.value.trim();
-//         if (msg) {
-//             const role = gameState.player === 1 ? 'Player 1' : 'Player 2';
-//             sendMessage(msg, role);
-//             chatInput.value = '';
-//         }
-//     });
-// });
-
-
-
 // game.js
 
 // Ensure all logic runs after DOM is fully loaded
@@ -298,6 +60,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const finalScene = document.getElementById('final-scene');
     const challengeList = document.getElementById('challenge-list');
     const gameObjects = document.querySelectorAll('.game-object');
+    const waitingRoom = document.getElementById('waiting-room');
+    const waitingMessages = document.getElementById('waiting-messages');
 
     function sendMessage(msg, role) {
         db.collection("rooms").doc(gameState.roomId).collection("messages").add({
@@ -420,6 +184,45 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function showWaitingRoom(isPlayer1) {
+        lobby.style.display = 'none';
+        gameContainer.style.display = 'none';
+        waitingRoom.style.display = 'block';
+        if (isPlayer1) {
+            waitingMessages.innerHTML = `<div>Detective A joined</div><div>Waiting for Detective B</div>`;
+        } else {
+            waitingMessages.innerHTML = `<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>`;
+        }
+    }
+
+    function listenForPlayers() {
+        db.collection('rooms').doc(gameState.roomId).onSnapshot(doc => {
+            const data = doc.data();
+            if (!data) return;
+            let aJoined = !!data.player1Joined;
+            let bJoined = !!data.player2Joined;
+            if (gameState.player === 1) {
+                if (aJoined && !bJoined) {
+                    showWaitingRoom(true);
+                } else if (aJoined && bJoined) {
+                    waitingMessages.innerHTML = `<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>`;
+                    setTimeout(() => {
+                        waitingRoom.style.display = 'none';
+                        startGame();
+                    }, 1200);
+                }
+            } else if (gameState.player === 2) {
+                if (aJoined && bJoined) {
+                    showWaitingRoom(false);
+                    setTimeout(() => {
+                        waitingRoom.style.display = 'none';
+                        startGame();
+                    }, 1200);
+                }
+            }
+        });
+    }
+
     function startGame() {
         lobby.style.display = 'none';
         gameContainer.style.display = 'grid';
@@ -442,7 +245,13 @@ window.addEventListener('DOMContentLoaded', () => {
         gameState.playerName = name;
         gameState.roomId = Math.random().toString(36).substr(2, 4).toUpperCase();
         gameState.partnerName = "Player 2";
-        startGame();
+        // Set player1Joined in Firestore
+        db.collection('rooms').doc(gameState.roomId).set({
+            player1Joined: true,
+            player2Joined: false
+        });
+        showWaitingRoom(true);
+        listenForPlayers();
         alert(`Room created. Share code: ${gameState.roomId}`);
     });
 
@@ -454,7 +263,12 @@ window.addEventListener('DOMContentLoaded', () => {
         gameState.playerName = name;
         gameState.roomId = room;
         gameState.partnerName = "Player 1";
-        startGame();
+        // Set player2Joined in Firestore
+        db.collection('rooms').doc(gameState.roomId).set({
+            player2Joined: true
+        }, { merge: true });
+        listenForPlayers();
+        showWaitingRoom(false);
     });
 
     chatForm.addEventListener('submit', e => {

@@ -224,7 +224,6 @@ window.addEventListener('DOMContentLoaded', () => {
             if (gameState.player === 2 && player2Set2.every(k => gameState.riddleState[k].solved)) {
                 sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
                 updateFinishState();
-=======
 
             // Only show transition if this is the last unsolved riddle in the set
             function isLastUnsolved(set) {

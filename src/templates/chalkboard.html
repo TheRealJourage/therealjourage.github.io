@@ -1,0 +1,29 @@
+<script>
+    // Function to show dialog or image when chalkboard is clicked
+    function showChalkboardDialog() {
+        const dialog = document.createElement('div');
+        dialog.style.position = 'fixed';
+        dialog.style.top = '50%';
+        dialog.style.left = '50%';
+        dialog.style.transform = 'translate(-50%, -50%)';
+        dialog.style.backgroundColor = 'white';
+        dialog.style.padding = '20px';
+        dialog.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+        dialog.innerHTML = `
+            <h2>Chalkboard</h2>
+            <img src="../src/static/images/chalkboard_image.png" alt="Chalkboard Image" style="width: 100%; height: auto;">
+            <button id="close-dialog">Close</button>
+        `;
+        document.body.appendChild(dialog);
+
+        // Close dialog functionality
+        document.getElementById('close-dialog').addEventListener('click', () => {
+            document.body.removeChild(dialog);
+        });
+    }
+
+    // Add click event listener to the chalkboard object
+    document.querySelector('.game-object[data-object="chalkboard"]').addEventListener('click', showChalkboardDialog);
+</script>
+<link rel="stylesheet" href="../static/css/chalkboard.css">
+<script src="../src/static/js/chalkboard.js"></script>

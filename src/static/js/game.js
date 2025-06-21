@@ -362,63 +362,103 @@ window.addEventListener('DOMContentLoaded', () => {
         if (obj) obj.classList.add("solved-object");
     }
 
+    function showChalkboardDialog() {
+        const dialog = document.createElement('div');
+        dialog.style.position = 'fixed';
+        dialog.style.top = '50%';
+        dialog.style.left = '50%';
+        dialog.style.transform = 'translate(-50%, -50%)';
+        dialog.style.backgroundColor = 'white';
+        dialog.style.padding = '20px';
+        dialog.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+        dialog.style.zIndex = '1000';
+    
+        dialog.innerHTML = `
+            <h2>Chalkboard</h2>
+            <img src="../src/static/images/chalkboard_image.png" alt="Chalkboard Image" style="width: 100%; height: auto;">
+            <button id="close-dialog">Schließen</button>
+        `;
+    
+        document.body.appendChild(dialog);
+    
+        document.getElementById('close-dialog').addEventListener('click', () => {
+            document.body.removeChild(dialog);
+        });
+    }
+
     function handleRiddleClick(event) {
         const objectName = event.target.getAttribute('data-object');
         const riddle = gameState.riddleState[objectName];
-        if (!riddle || riddle.solved) {
-            alert("Already solved or invalid.");
+    
+        if (!riddle) {
+            alert("Invalid object.");
             return;
         }
-
+    
+        if (riddle.solved) {
+            alert("Already solved!");
+            return;
+        }
+    
+        // Spezieller Fall: chalkboard zuerst abfangen
+        if (objectName === "chalkboard") {
+            console.log("Chalkboard clicked");
+            showChalkboardDialog();
+            return;
+        }
+    
+        // Nur für alle anderen Objekte prompt anzeigen
         const answer = prompt(riddle.question);
         if (!answer) return;
+    
         const cleaned = answer.trim().toLowerCase();
-
+    
         const correct = cleaned === riddle.answer.toLowerCase() ||
             (riddle.alternateAnswer && cleaned === riddle.alternateAnswer.toLowerCase());
-
+    
         if (correct) {
             riddle.solved = true;
             sendMessage(`${gameState.playerName} solved ${objectName}`, gameState.player === 1 ? 'Player 1' : 'Player 2');
             addCompletedChallenge(objectName);
-
+    
             if (objectName === 'finale') {
                 alert(cleaned === "partner" ? "Congratulations! You solved the mystery!" : "A terrifying truth revealed...");
                 window.location.href = "victory.html";
                 return;
             }
-
+    
+            // Rest deines Level-Logik
             const player1Set1 = ['lamp', 'typewriter', 'portrait'];
             const player1Set2 = ['chest', 'bookshelf', 'candle'];
-            const player2Set1 = ['palm', 'chalkboard', 'bloodStainedTable'];
+            const player2Set1 = ['chalkboard', 'bloodStainedTable'];
             const player2Set2 = ['bridge', 'artifact'];
-
+    
             if (gameState.player === 1 && player1Set1.every(k => gameState.riddleState[k].solved)) {
                 player1Scene.style.display = 'none';
                 player1Scene2.style.display = 'block';
                 sendMessage("Detective A completed Study Room.", "System");
             }
-
+    
             if (gameState.player === 1 && player1Set2.every(k => gameState.riddleState[k].solved)) {
                 sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
                 updateFinishState();
             }
-
+    
             if (gameState.player === 2 && player2Set1.every(k => gameState.riddleState[k].solved)) {
                 player2Scene.style.display = 'none';
                 player2Scene2.style.display = 'block';
                 sendMessage("Detective B completed Labo.", "System");
             }
-
+    
             if (gameState.player === 2 && player2Set2.every(k => gameState.riddleState[k].solved)) {
                 sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
                 updateFinishState();
             }
-
+    
         } else {
             sendMessage(`${gameState.playerName} attempted ${objectName} but failed`, gameState.player === 1 ? 'Player 1' : 'Player 2');
         }
-    }
+    }    
 
     function startGame() {
         lobby.style.display = 'none';
@@ -484,4 +524,5 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+   
 });

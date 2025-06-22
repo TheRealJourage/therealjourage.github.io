@@ -23,21 +23,80 @@ window.addEventListener('DOMContentLoaded', () => {
         partnerName: null,
         finished: false,
         riddleState: {
-            lamp: { question: "Born of fire but tamed by wire, I stand guard through shadows dire. I reveal truth but have none of my own. What am I?", answer: "1", solved: false },
-            typewriter: { question: "I echo thoughts in metal and ink, though I cannot feel or think. Once I start, I never speak — yet all your secrets I may leak. What am I?", answer: "1", solved: false },
-            portrait: { question: "A reflection I hold, but not your face. I freeze a soul in a gilded place. I watch, I wait, with painted grace. What am I?", answer: "1", solved: false },
-            chest: { question: "I keep what’s precious out of sight. I lock away both day and night. Though I hold, I do not cling — you must answer to see what I bring. What am I?", answer: "1", solved: false },
-            bookshelf: { question: "I carry countless voices quiet, stories ancient, knowledge private. I never move, but minds I steer. What am I?", answer: "1", solved: false },
-            candle: { question: "I vanish while I shine. I feed on breath but make no sound. My death is slow, my life is bright. What am I?", answer: "1", solved: false },
-            palm: { question: "I wave without hands and dance without feet. What am I?", answer: "1", solved: false },
-            chalkboard: { question: "I hide treasures deep inside me. What am I?", answer: "1", solved: false },
-            bloodStainedTable: { question: "I guide lost souls but I’m not alive. What am I?", answer: "1", solved: false },
-            bridge: { question: "I connect places but I’m not a phone. What am I?", answer: "1", solved: false },
-            artifact: { question: "I shine in the dark but I’m not a star. What am I?", answer: "1", solved: false },
-            finale: {
-                question: "Who killed Alistair Blackwood? Type \"partner\" or \"blackwood\".",
-                answer: "1",
-                alternateAnswer: "2",
+            // Study (Detective A - Room 1)
+            portrait: {
+                question: "The man in the painting is no stranger to codes. Below him, an object stands still — once used to capture time. How many hands does it have?",
+                answer: "3",
+                hint: "Focus on the object just below the portrait — one hand would be for hours.",
+                solved: false
+            },
+            typewriter: {
+                question: "Old keys rattle in silence. The word ‘CODE’ is jammed. Find the sum of their row numbers.",
+                answer: "7",
+                hint: "It’s a single-digit number that’s the sum of the row positions for the keys C, O, D, and E. Think of a traditional QWERTY layout — top is 1, middle is 2, bottom is 3.",
+                solved: false
+            },
+            cabinet: {
+                question: "Inside the Cabinet lies a faded map marked ‘1950’. Which famous war does this year point to?",
+                answer: "korean",
+                hint: "This battle happened in a country presently extremely popular for pop music. Starts with K, ends with N",
+                solved: false
+            },
+            // Hidden Library (Detective A - Room 2)
+            candle: {
+                question: "\"I sleep in silence, slender and dry,\nBut strike me once, and flames will fly.\nBorn from friction, short I live—\nA spark, a flare, is all I give.\nWhat am I?\"",
+                answer: "match",
+                hint: "A tool for lighting the candle. You’re looking for a word, number of letters matching the answer for  Detective B's Atom Count Formula riddle answer + 1 letter.",
+                solved: false
+            },
+            bookshelf: {
+                question: `Three ancient books sit side-by-side on a dusty shelf:\nOne is titled Alchemy, one is Astrology, and one is Anatomy.\nEach has a different cover: red, green, or black.\nEach is written in a different language: Latin, Greek, or Arabic.\n\nClues:\n- The Alchemy book is somewhere to the left of the green book.\n- The Latin book is immediately next to the Anatomy book.\n- The black book is not written in Arabic.\n- The Astrology book is not next to the Alchemy book.\n- The green book is in the middle.\n\nGoal: Determine the correct order (from left to right) of the books by title, cover color, and language.`,
+                answer: "alchemy-red-greek,astrology-green-arabic,anatomy-black-latin",
+                hint: "Start with what’s fixed. Then think about what can’t be next to what",
+                solved: false
+            },
+            chest: {
+                question: "Chest bears a padlock. Underneath it is a carving: ‘XII, IV, IX’. Convert and sum.",
+                answer: "25",
+                hint: "It’s the sum of three Roman numerals. One rhymes with ‘Fine’. The total is a two-digit number.",
+                solved: false
+            },
+            // Lab (Detective B - Room 1)
+            chalkboard: {
+                question: "An equation reads: ‘Sun + Moon = ???’. What do many ancient cultures believe is formed when both align?",
+                answer: "eclipse",
+                hint: "Starts with E, ends with E, and causes shadows during day or night.",
+                solved: false
+            },
+            bloodStainedTable: {
+                question: "Three vials lie shattered. One labeled ‘Cu’, one ‘Au’, one ‘Ag’. Which has the highest value?",
+                answer: "gold",
+                hint: "Four-letter word. A metal fit for king's crown.",
+                solved: false
+            },
+            hiddenFormula: {
+                question: "The Eternalis formula ends in something explosive. Multiply the atom count of NaCl by H₂O.",
+                answer: "6",
+                hint: "You’re multiplying the number of atoms in each compound. One has X, the other has Y. What’s X × Y?",
+                solved: false
+            },
+            // Security Room (Detective B - Room 2)
+            safe: {
+                question: "The answer lies in the past — piece together what your partner revealed in Portrait and Typewriter.",
+                answer: "37",
+                hint: "Combine the number of clock hands and the sum of the row numbers into a single passphrase in ascending order.",
+                solved: false
+            },
+            monitor: {
+                question: "A flickering feed shows a comet. It returns every 76 years. What’s its name?",
+                answer: "halley",
+                hint: "Sounds like ‘Valley’, and it starts with H. Famous celestial object visible to the naked eye.",
+                solved: false
+            },
+            securityDoor: {
+                question: "I can unlock any door, yet I am not a key. I am spoken, not held. I am known but not seen. Say me wrong, and you stay locked in. What am I?",
+                answer: "password",
+                hint: "You don’t carry this in your pocket, but you enter this to gain access. Often changed, sometimes forgotten. Starts with letter P.",
                 solved: false
             }
         }
@@ -66,6 +125,29 @@ window.addEventListener('DOMContentLoaded', () => {
     const introVideo = document.getElementById('intro-video');
     const transitionOverlay = document.getElementById('transition-overlay');
     const transitionMessage = document.getElementById('transition-message');
+
+    // Add modal for riddle prompt and hint
+    let riddleModal = document.getElementById('riddle-modal');
+    if (!riddleModal) {
+        // Attach modal to game-view, not body
+        const gameView = document.getElementById('game-view');
+        riddleModal = document.createElement('div');
+        riddleModal.id = 'riddle-modal';
+        riddleModal.style = 'display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:520px; max-width:90vw; min-width:340px; background:rgba(34,34,34,0.98); z-index:999; justify-content:center; align-items:center; border-radius:18px; box-shadow:0 8px 32px rgba(0,0,0,0.7);';
+        riddleModal.innerHTML = `
+      <div id="riddle-modal-content" style="background:none; color:#fff; border-radius:16px; padding:32px 32px 24px 32px; min-width:320px; max-width:90vw; text-align:center; position:relative;">
+        <div id="riddle-question" style="font-size:1.2rem; margin-bottom:16px;"></div>
+        <input id="riddle-answer" type="text" style="width:90%; padding:10px; font-size:1.1rem; margin-bottom:12px; border-radius:8px; border:none;" placeholder="Your answer..." />
+        <div style="margin-bottom:12px;">
+          <button id="riddle-hint-btn" style="margin-right:8px; padding:8px 22px; border-radius:8px; background:#444; color:#fff; border:none; cursor:pointer;">Hint</button>
+          <button id="riddle-submit-btn" style="padding:8px 22px; border-radius:8px; background:#D4AF37; color:#222; border:none; cursor:pointer;">Submit</button>
+        </div>
+        <div id="riddle-hint" style="display:none; background:#333; color:#FFD700; border-radius:8px; padding:10px; margin-bottom:8px; font-size:1rem;"></div>
+        <button id="riddle-cancel-btn" style="position:absolute; top:8px; right:8px; background:none; color:#fff; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+      </div>
+    `;
+        gameView.appendChild(riddleModal);
+    }
 
     function sendMessage(msg, role) {
         db.collection("rooms").doc(gameState.roomId).collection("messages").add({
@@ -132,6 +214,74 @@ window.addEventListener('DOMContentLoaded', () => {
         if (obj) obj.classList.add("solved-object");
     }
 
+    function showRiddleModal(riddle, onSubmit) {
+        document.getElementById('riddle-question').textContent = riddle.question;
+        document.getElementById('riddle-hint').style.display = 'none';
+        document.getElementById('riddle-hint').textContent = riddle.hint;
+        // Custom input for bookshelf puzzle
+        if (riddle === gameState.riddleState.bookshelf) {
+            document.getElementById('riddle-answer').style.display = 'none';
+            if (!document.getElementById('bookshelf-title')) {
+                const modalContent = document.getElementById('riddle-modal-content');
+                const titleInput = document.createElement('input');
+                titleInput.id = 'bookshelf-title';
+                titleInput.type = 'text';
+                titleInput.placeholder = 'Titles (comma separated)';
+                titleInput.style = 'width:80%; padding:8px; font-size:1rem; margin-bottom:8px; border-radius:6px; border:none;';
+                const colorInput = document.createElement('input');
+                colorInput.id = 'bookshelf-color';
+                colorInput.type = 'text';
+                colorInput.placeholder = 'Colors (comma separated)';
+                colorInput.style = 'width:80%; padding:8px; font-size:1rem; margin-bottom:8px; border-radius:6px; border:none;';
+                const langInput = document.createElement('input');
+                langInput.id = 'bookshelf-language';
+                langInput.type = 'text';
+                langInput.placeholder = 'Languages (comma separated)';
+                langInput.style = 'width:80%; padding:8px; font-size:1rem; margin-bottom:12px; border-radius:6px; border:none;';
+                modalContent.insertBefore(titleInput, document.getElementById('riddle-hint-btn').parentNode);
+                modalContent.insertBefore(colorInput, document.getElementById('riddle-hint-btn').parentNode);
+                modalContent.insertBefore(langInput, document.getElementById('riddle-hint-btn').parentNode);
+            } else {
+                document.getElementById('bookshelf-title').style.display = '';
+                document.getElementById('bookshelf-color').style.display = '';
+                document.getElementById('bookshelf-language').style.display = '';
+            }
+        } else {
+            document.getElementById('riddle-answer').style.display = '';
+            if (document.getElementById('bookshelf-title')) {
+                document.getElementById('bookshelf-title').style.display = 'none';
+                document.getElementById('bookshelf-color').style.display = 'none';
+                document.getElementById('bookshelf-language').style.display = 'none';
+            }
+        }
+        riddleModal.style.display = 'flex';
+        if (riddle !== gameState.riddleState.bookshelf) {
+            document.getElementById('riddle-answer').focus();
+        } else {
+            document.getElementById('bookshelf-title').focus();
+        }
+
+        document.getElementById('riddle-hint-btn').onclick = () => {
+            document.getElementById('riddle-hint').style.display = 'block';
+        };
+        document.getElementById('riddle-submit-btn').onclick = () => {
+            if (riddle === gameState.riddleState.bookshelf) {
+                const title = document.getElementById('bookshelf-title').value.trim();
+                const color = document.getElementById('bookshelf-color').value.trim();
+                const lang = document.getElementById('bookshelf-language').value.trim();
+                riddleModal.style.display = 'none';
+                onSubmit({title, color, lang});
+            } else {
+                const answer = document.getElementById('riddle-answer').value;
+                riddleModal.style.display = 'none';
+                onSubmit(answer);
+            }
+        };
+        document.getElementById('riddle-cancel-btn').onclick = () => {
+            riddleModal.style.display = 'none';
+        };
+    }
+
     function handleRiddleClick(event) {
         const objectName = event.target.getAttribute('data-object');
         const riddle = gameState.riddleState[objectName];
@@ -140,75 +290,101 @@ window.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const answer = prompt(riddle.question);
-        if (!answer) return;
-        const cleaned = answer.trim().toLowerCase();
-
-        const correct = cleaned === riddle.answer.toLowerCase() ||
-            (riddle.alternateAnswer && cleaned === riddle.alternateAnswer.toLowerCase());
-
-        if (correct) {
-            riddle.solved = true;
-            sendMessage(`${gameState.playerName} solved ${objectName}`, gameState.player === 1 ? 'Player 1' : 'Player 2');
-            addCompletedChallenge(objectName);
-
-            if (objectName === 'finale') {
-                alert(cleaned === "partner" ? "Congratulations! You solved the mystery!" : "A terrifying truth revealed...");
-                window.location.href = "victory.html";
-                return;
+        showRiddleModal(riddle, function(answer) {
+            if (!answer) return;
+            let correct = false;
+            if (objectName === 'bookshelf') {
+                // Accept answer as object: {title, color, lang}
+                const t = answer.title.toLowerCase().replace(/\s+/g, '');
+                const c = answer.color.toLowerCase().replace(/\s+/g, '');
+                const l = answer.lang.toLowerCase().replace(/\s+/g, '');
+                // Accept comma or dash separated, any order
+                const userCombo = `${t}-${c}-${l}`;
+                const expected = [
+                  'alchemy-red-greek',
+                  'astrology-green-arabic',
+                  'anatomy-black-latin'
+                ];
+                // Accept all three in order, comma separated
+                correct = (
+                  userCombo === expected[0] ||
+                  userCombo === expected[1] ||
+                  userCombo === expected[2] ||
+                  `${t},${c},${l}` === riddle.answer
+                );
+                // Accept all three as a single string
+                if (
+                  `${t},${c},${l}`.replace(/\s+/g, '') === riddle.answer.replace(/\s+/g, '')
+                ) correct = true;
+            } else {
+                const cleaned = typeof answer === 'string' ? answer.trim().toLowerCase() : '';
+                correct = cleaned === riddle.answer.toLowerCase() ||
+                    (riddle.alternateAnswer && cleaned === riddle.alternateAnswer.toLowerCase());
             }
 
-            const player1Set1 = ['lamp', 'typewriter', 'portrait'];
-            const player1Set2 = ['chest', 'bookshelf', 'candle'];
-            const player2Set1 = ['palm', 'chalkboard', 'bloodStainedTable'];
-            const player2Set2 = ['bridge', 'artifact'];
+            if (correct) {
+                riddle.solved = true;
+                sendMessage(`${gameState.playerName} solved ${objectName}`, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                addCompletedChallenge(objectName);
 
-            // Only show transition if this is the last unsolved riddle in the set
-            function isLastUnsolved(set) {
-                return set.filter(k => !gameState.riddleState[k].solved).length === 0 && set.includes(objectName);
+                if (objectName === 'finale') {
+                    alert(typeof answer === 'string' && answer.trim().toLowerCase() === "partner" ? "Congratulations! You solved the mystery!" : "A terrifying truth revealed...");
+                    window.location.href = "victory.html";
+                    return;
+                }
+
+                const player1Set1 = ['portrait', 'typewriter', 'cabinet'];
+                const player1Set2 = ['chest', 'bookshelf', 'candle'];
+                const player2Set1 = ['chalkboard', 'bloodStainedTable', 'hiddenFormula'];
+                const player2Set2 = ['safe', 'monitor', 'securityDoor'];
+
+                // Only show transition if this is the last unsolved riddle in the set
+                function isLastUnsolved(set) {
+                    return set.filter(k => !gameState.riddleState[k].solved).length === 0 && set.includes(objectName);
+                }
+
+                if (gameState.player === 1 && isLastUnsolved(player1Set1)) {
+                    showTransitionOverlay();
+                    setTimeout(() => {
+                        hideTransitionOverlay();
+                        player1Scene.style.display = 'none';
+                        player1Scene2.style.display = 'block';
+                        sendMessage("Detective A completed Study Room.", "System");
+                    }, 1500);
+                }
+
+                if (gameState.player === 1 && isLastUnsolved(player1Set2)) {
+                    showTransitionOverlay();
+                    setTimeout(() => {
+                        hideTransitionOverlay();
+                        sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
+                        updateFinishState();
+                    }, 1500);
+                }
+
+                if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
+                    showTransitionOverlay();
+                    setTimeout(() => {
+                        hideTransitionOverlay();
+                        player2Scene.style.display = 'none';
+                        player2Scene2.style.display = 'block';
+                        sendMessage("Detective B completed Labo.", "System");
+                    }, 1500);
+                }
+
+                if (gameState.player === 2 && isLastUnsolved(player2Set2)) {
+                    showTransitionOverlay();
+                    setTimeout(() => {
+                        hideTransitionOverlay();
+                        sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
+                        updateFinishState();
+                    }, 1500);
+                }
+
+            } else {
+                sendMessage(`${gameState.playerName} attempted ${objectName} but failed`, gameState.player === 1 ? 'Player 1' : 'Player 2');
             }
-
-            if (gameState.player === 1 && isLastUnsolved(player1Set1)) {
-                showTransitionOverlay();
-                setTimeout(() => {
-                    hideTransitionOverlay();
-                    player1Scene.style.display = 'none';
-                    player1Scene2.style.display = 'block';
-                    sendMessage("Detective A completed Study Room.", "System");
-                }, 1500);
-            }
-
-            if (gameState.player === 1 && isLastUnsolved(player1Set2)) {
-                showTransitionOverlay();
-                setTimeout(() => {
-                    hideTransitionOverlay();
-                    sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
-                    updateFinishState();
-                }, 1500);
-            }
-
-            if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
-                showTransitionOverlay();
-                setTimeout(() => {
-                    hideTransitionOverlay();
-                    player2Scene.style.display = 'none';
-                    player2Scene2.style.display = 'block';
-                    sendMessage("Detective B completed Labo.", "System");
-                }, 1500);
-            }
-
-            if (gameState.player === 2 && isLastUnsolved(player2Set2)) {
-                showTransitionOverlay();
-                setTimeout(() => {
-                    hideTransitionOverlay();
-                    sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
-                    updateFinishState();
-                }, 1500);
-            }
-
-        } else {
-            sendMessage(`${gameState.playerName} attempted ${objectName} but failed`, gameState.player === 1 ? 'Player 1' : 'Player 2');
-        }
+        });
     }
 
     function showWaitingRoom(isPlayer1) {

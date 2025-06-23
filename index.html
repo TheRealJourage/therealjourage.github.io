@@ -418,14 +418,24 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
-    <!-- Detective A: STUDY -->
+    </style>
+</head>
+<body>
+    <div id="lobby">
+        <!-- ...existing lobby code... -->
+    </div>
+    <div id="game-container" style="display:none; height:100%; grid-template-columns:1fr 300px; grid-template-rows:auto 1fr 200px;">
+        <div id="header">
+            <!-- ...existing header code... -->
+        </div>
+        <div id="game-view">
+            <!-- Detective A: STUDY -->
             <div id="player1-scene" class="scene" style="display: none;">
                 <img src="src/static/images/study_room.png" alt="Study Room" class="scene-bg">
                 <div class="game-object" style="top: 150px; left: 800px;" data-object="portrait">Portrait</div>
                 <div class="game-object" style="top: 375px; left: 230px;" data-object="typewriter">Typewriter</div>
                 <div class="game-object" style="top: 270px; left: 320px;" data-object="cabinet">Cabinet</div>
             </div>
-
             <!-- Detective A: LIBRARY -->
             <div id="player1-scene-2" class="scene" style="display: none;">
                 <img src="src/static/images/library_room.png" alt="Library Room" class="scene-bg">
@@ -433,14 +443,12 @@
                 <div class="game-object" style="top: 350px; left: 600px;" data-object="bookshelf">Bookshelf</div>
                 <div class="game-object" style="top: 220px; left: 800px;" data-object="candle">Candle</div>
             </div>
-
             <!-- Detective A: BALLROOM (Room 3) -->
             <div id="player1-ballroom" class="scene" style="display: none;">
                 <img src="src/static/images/player1-ballroom.png" alt="Ballroom 1" class="scene-bg">
                 <div class="game-object" style="top: 180px; left: 700px;" data-object="portrait_ballroom">Portrait</div>
                 <div class="game-object" style="top: 120px; left: 400px;" data-object="chandelier">Chandelier</div>
             </div>
-
             <!-- Detective B: LAB -->
             <div id="player2-scene" class="scene" style="display: none;">
                 <img src="src/static/images/abonded_lab.png" alt="Laboratory" class="scene-bg">
@@ -448,7 +456,6 @@
                 <div class="game-object" style="top: 200px; left: 650px;" data-object="chalkboard">Chalkboard</div>
                 <div class="game-object" style="top: 120px; left: 300px;" data-object="hiddenFormula">Hidden Formula</div>
             </div>
-
             <!-- Detective B: SECURITY ROOM -->
             <div id="player2-scene-2" class="scene" style="display: none;">
                 <img src="src/static/images/securityRoom.png" alt="Security Room" class="scene-bg">
@@ -456,37 +463,25 @@
                 <div class="game-object" style="top: 300px; left: 550px;" data-object="monitor">Monitor</div>
                 <div class="game-object" style="top: 100px; left: 700px;" data-object="securityDoor">Security Door</div>
             </div>
-
             <!-- Detective B: BALLROOM (Room 3) -->
             <div id="player2-ballroom" class="scene" style="display: none;">
                 <img src="src/static/images/player2-ballroom.png" alt="Ballroom 2" class="scene-bg">
                 <div class="game-object" style="top: 300px; left: 500px;" data-object="fireplace">Fireplace</div>
                 <div class="game-object" style="top: 420px; left: 650px;" data-object="damaged_floor">Damaged Floor</div>
             </div>
-
-
         </div>
-
- <div id="inventory">
-    <h3>Inventory</h3>
-    <div id="inventory-items">
-        <!-- Items will be added dynamically -->
-    </div>
-
-    <div class="puzzle-hint" id="current-hint">
-        <h4>Current Objective</h4>
-        <p id="hint-text">Find a way to open the treasure chest.</p>
-    </div>
-
-    <div id="challenge-status">
-        <h4>Completed Riddles</h4>
-        <ul id="challenge-list">
-            <!-- Completed riddles like ✅ Chest Challenge Fixed will appear here -->
-        </ul>
-    </div>
-</div>
-
-
+        <div id="inventory">
+            <h3>Inventory</h3>
+            <div id="inventory-items"></div>
+            <div class="puzzle-hint" id="current-hint">
+                <h4>Current Objective</h4>
+                <p id="hint-text">Find a way to open the treasure chest.</p>
+            </div>
+            <div id="challenge-status">
+                <h4>Completed Riddles</h4>
+                <ul id="challenge-list"></ul>
+            </div>
+        </div>
         <div id="chat">
             <div id="messages"></div>
             <form id="chat-form">

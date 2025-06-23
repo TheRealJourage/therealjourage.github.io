@@ -276,7 +276,7 @@ window.addEventListener('DOMContentLoaded', () => {
         li.textContent = '\u2705 ' + objectName + ' Challenge Fixed';
         challengeList.appendChild(li);
         const obj = document.querySelector('.game-object[data-object="' + objectName + '"]');
-        if obj) obj.classList.add("solved-object");
+        if (obj) obj.classList.add("solved-object");
     }
 
     function showRiddleModal(riddle, onSubmit) {

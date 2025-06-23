@@ -253,7 +253,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         const finalVideo = document.getElementById('final-video');
                         finalVideo.currentTime = 0;
                         finalVideo.play();
-                        // Add skip button for final video (per player)
+                        // Add skip button for final video (per player, strictly local)
                         let skipFinalBtn = document.getElementById('skip-final-btn');
                         if (!skipFinalBtn) {
                             skipFinalBtn = document.createElement('button');
@@ -261,6 +261,7 @@ window.addEventListener('DOMContentLoaded', () => {
                             skipFinalBtn.textContent = 'Skip';
                             skipFinalBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
                             skipFinalBtn.onclick = () => {
+                                // Only affect local player
                                 finalVideo.pause();
                                 finalVideoOverlay.style.display = 'none';
                                 showCongratsOverlay();
@@ -774,13 +775,18 @@ window.addEventListener('DOMContentLoaded', () => {
                     showTransitionOverlay('Both detectives are finished, proceeding...');
                     setTimeout(() => {
                         hideTransitionOverlay();
+                        // --- FIX: Always pause/hide intro video overlay when showing final video ---
+                        const introVideo = document.getElementById('intro-video');
+                        const introVideoOverlay = document.getElementById('intro-video-overlay');
+                        if (introVideo) introVideo.pause();
+                        if (introVideoOverlay) introVideoOverlay.style.display = 'none';
                         // Show final video overlay
                         const finalVideoOverlay = document.getElementById('final-video-overlay');
                         finalVideoOverlay.style.display = 'flex';
                         const finalVideo = document.getElementById('final-video');
                         finalVideo.currentTime = 0;
                         finalVideo.play();
-                        // Add skip button for final video (per player)
+                        // Add skip button for final video (per player, strictly local)
                         let skipFinalBtn = document.getElementById('skip-final-btn');
                         if (!skipFinalBtn) {
                             skipFinalBtn = document.createElement('button');
@@ -788,6 +794,7 @@ window.addEventListener('DOMContentLoaded', () => {
                             skipFinalBtn.textContent = 'Skip';
                             skipFinalBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
                             skipFinalBtn.onclick = () => {
+                                // Only affect local player
                                 finalVideo.pause();
                                 finalVideoOverlay.style.display = 'none';
                                 showCongratsOverlay();

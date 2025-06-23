@@ -12,6 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="icon" href="src/static/images/favicon.ico">
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -418,33 +419,23 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
-    <!-- Ballroom Final Room Placeholder -->
-    <div id="ballroom-final" class="scene" style="display:none; width:100%; height:100%; background:#222; align-items:center; justify-content:center; flex-direction:column; position:absolute; top:0; left:0; z-index:10;">
-      <h1 style="color:#FFD700; margin-top:120px;">Ballroom</h1>
-      <p style="color:#fff; font-size:1.5rem;">Both detectives have arrived at the grand ballroom.<br>Final puzzles and secrets await here!</p>
-      <div style="width:100%;height:300px;background:#444;opacity:0.3;margin:32px 0 0 0;"></div>
-    </div>
     </style>
 </head>
 <body>
-    <!-- Lobby Screen -->
-  <div id="lobby">
-    <div id="create-game" class="lobby-section">
-      <h2>Create Game</h2>
-      <input type="text" id="player1-name" class="room-input" placeholder="Your Name" />
-      <button id="create-btn">Create Room</button>
+    <div id="lobby">
+        <div id="create-game" class="lobby-section">
+            <h2>Create Game</h2>
+            <input type="text" id="player1-name" class="room-input" placeholder="Your Name" />
+            <button id="create-btn">Create Room</button>
+        </div>
+        <div id="join-game" class="lobby-section">
+            <h2>Join Game</h2>
+            <input type="text" id="player2-name" class="room-input" placeholder="Your Name" />
+            <input type="text" id="room-id" class="room-input" placeholder="Room Code" />
+            <button id="join-btn">Join Room</button>
+        </div>
     </div>
-
-    <div id="join-game" class="lobby-section">
-      <h2>Join Game</h2>
-      <input type="text" id="player2-name" class="room-input" placeholder="Your Name" />
-      <input type="text" id="room-id" class="room-input" placeholder="Room Code" />
-      <button id="join-btn">Join Room</button>
-    </div>
-  </div>
-
-    <!-- Game Screen -->
-    <div id="game-container">
+    <div id="game-container" style="display:none; height:100%; grid-template-columns:1fr 300px; grid-template-rows:auto 1fr 200px;">
         <div id="header">
             <div>
                 <span id="player-role">Detective A</span> | 
@@ -462,75 +453,60 @@
                 <button id="leave-btn" style="position:static;">Leave Game</button>
             </div>
         </div>
-
         <div id="game-view">
-            <!-- Player 1 sees the study room -->
+            <!-- Detective A: STUDY -->
             <div id="player1-scene" class="scene" style="display: none;">
                 <img src="src/static/images/study_room.png" alt="Study Room" class="scene-bg">
                 <div class="game-object" style="top: 150px; left: 800px;" data-object="portrait">Portrait</div>
                 <div class="game-object" style="top: 375px; left: 230px;" data-object="typewriter">Typewriter</div>
                 <div class="game-object" style="top: 270px; left: 320px;" data-object="cabinet">Cabinet</div>
             </div>
-
-            <!-- Player 1 second scene: hidden library -->
+            <!-- Detective A: LIBRARY -->
             <div id="player1-scene-2" class="scene" style="display: none;">
                 <img src="src/static/images/library_room.png" alt="Library Room" class="scene-bg">
                 <div class="game-object" style="top: 200px; left: 300px;" data-object="chest">Chest</div>
                 <div class="game-object" style="top: 350px; left: 600px;" data-object="bookshelf">Bookshelf</div>
                 <div class="game-object" style="top: 220px; left: 800px;" data-object="candle">Candle</div>
-                <div class="game-object" style="top: 350px; left: 600px;" data-object="bookshelf">Bookshelf</div>
-                <div class="game-object" style="top: 200px; left: 300px;" data-object="chest">Chest</div>
             </div>
-
-            <!-- Player 2 -->
-       <div id="player2-scene" class="scene" style="display: none;">
-    <img src="src/static/images/abonded_lab.png" alt="Laboratory" class="scene-bg">
-    <div class="game-object" style="top: 350px; left: 450px;" data-object="bloodStainedTable">Blood-stained Table</div>
-    <div class="game-object" style="top: 200px; left: 650px;" data-object="chalkboard">Chalkboard</div>
-    <div class="game-object" style="top: 350px; left: 450px;" data-object="bloodStainedTable">Blood-stained Table</div>
-    <div class="game-object" style="top: 120px; left: 300px;" data-object="hiddenFormula">Hidden Formula</div>
-</div>
-
-<div id="player2-scene-2" class="scene" style="display: none;">
-    <img src="src/static/images/securityRoom.png" alt="Securety Room" class="scene-bg">
-    <div class="game-object" style="top: 400px; left: 200px;" data-object="safe">Safe</div>
-    <div class="game-object" style="top: 300px; left: 550px;" data-object="monitor">Monitor</div>
-    <div class="game-object" style="top: 100px; left: 700px;" data-object="securityDoor">Security Door</div>
-    <div class="game-object" style="top: 400px; left: 200px;" data-object="safe">Safe</div>
-    <div class="game-object" style="top: 300px; left: 550px;" data-object="monitor">Monitor</div>
-    <div class="game-object" style="top: 100px; left: 700px;" data-object="securityDoor">Security Door</div>
-</div>
-
-<div id="final-scene" class="scene" style="display: none;">
-    <img src="src/static/images/inland_scene.png" alt="Inland Scene" class="scene-bg">
-    <div class="game-object" style="top: 400px; left: 200px;" data-object="bridge">Wooden Bridge</div>
-    <div class="game-object" style="top: 300px; left: 550px;" data-object="artifact">Golden Artifact</div>
-</div>
-
-
-
+            <!-- Detective A: BALLROOM (Room 3) -->
+            <div id="player1-ballroom" class="scene" style="display: none;">
+                <img src="src/static/images/player1-ballroom.png" alt="Ballroom 1" class="scene-bg">
+                <div class="game-object" style="top: 180px; left: 700px;" data-object="portrait_ballroom">Portrait</div>
+                <div class="game-object" style="top: 120px; left: 400px;" data-object="chandelier">Chandelier</div>
+            </div>
+            <!-- Detective B: LAB -->
+            <div id="player2-scene" class="scene" style="display: none;">
+                <img src="src/static/images/abonded_lab.png" alt="Laboratory" class="scene-bg">
+                <div class="game-object" style="top: 350px; left: 450px;" data-object="bloodStainedTable">Blood-stained Table</div>
+                <div class="game-object" style="top: 200px; left: 650px;" data-object="chalkboard">Chalkboard</div>
+                <div class="game-object" style="top: 120px; left: 300px;" data-object="hiddenFormula">Hidden Formula</div>
+            </div>
+            <!-- Detective B: SECURITY ROOM -->
+            <div id="player2-scene-2" class="scene" style="display: none;">
+                <img src="src/static/images/securityRoom.png" alt="Security Room" class="scene-bg">
+                <div class="game-object" style="top: 400px; left: 200px;" data-object="safe">Safe</div>
+                <div class="game-object" style="top: 300px; left: 550px;" data-object="monitor">Monitor</div>
+                <div class="game-object" style="top: 100px; left: 700px;" data-object="securityDoor">Security Door</div>
+            </div>
+            <!-- Detective B: BALLROOM (Room 3) -->
+            <div id="player2-ballroom" class="scene" style="display: none;">
+                <img src="src/static/images/player2-ballroom.png" alt="Ballroom 2" class="scene-bg">
+                <div class="game-object" style="top: 300px; left: 500px;" data-object="fireplace">Fireplace</div>
+                <div class="game-object" style="top: 420px; left: 650px;" data-object="damaged_floor">Damaged Floor</div>
+            </div>
         </div>
-
- <div id="inventory">
-    <h3>Inventory</h3>
-    <div id="inventory-items">
-        <!-- Items will be added dynamically -->
-    </div>
-
-    <div class="puzzle-hint" id="current-hint">
-        <h4>Current Objective</h4>
-        <p id="hint-text">Find a way to open the treasure chest.</p>
-    </div>
-
-    <div id="challenge-status">
-        <h4>Completed Riddles</h4>
-        <ul id="challenge-list">
-            <!-- Completed riddles like ✅ Chest Challenge Fixed will appear here -->
-        </ul>
-    </div>
-</div>
-
-
+        <div id="inventory">
+            <h3>Inventory</h3>
+            <div id="inventory-items"></div>
+            <div class="puzzle-hint" id="current-hint">
+                <h4>Current Objective</h4>
+                <p id="hint-text">Find a way to open the treasure chest.</p>
+            </div>
+            <div id="challenge-status">
+                <h4>Completed Riddles</h4>
+                <ul id="challenge-list"></ul>
+            </div>
+        </div>
         <div id="chat">
             <div id="messages"></div>
             <form id="chat-form">
@@ -574,6 +550,20 @@
       <div id="transition-message" style="position:absolute; left:50%; transform:translateX(-50%); bottom:10vh; background:rgba(0,0,0,0.7); border-radius:16px; padding:32px 48px; min-width:320px; text-align:center; color:#fff; font-size:2rem; box-shadow:0 8px 32px rgba(0,0,0,0.5);">
         Proceeding to the next room...
       </div>
+    </div>
+
+    <!-- Finale overlays for congrats and final video -->
+    <div id="eternalis-congrats" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:url('src/static/images/waiting_room.png') no-repeat center center; background-size:cover; z-index:500; justify-content:center; align-items:center; flex-direction:column;">
+      <h1 style="color:#FFD700; font-size:3rem; margin-bottom:24px; text-shadow:2px 2px 8px #000;">Congratulations!</h1>
+      <p style="color:#fff; font-size:2rem; background:rgba(0,0,0,0.7); padding:32px 48px; border-radius:18px;">You found the Eternalis</p>
+    </div>
+
+    <!-- Final video overlay -->
+    <div id="final-video-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:450; justify-content:center; align-items:center; background:url('src/static/images/waiting_room.png') no-repeat center center; background-size:cover;">
+      <video id="final-video" width="960" height="540" style="max-width:90vw; max-height:90vh; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.7); background:#000;" controls>
+        <source src="src/static/videos/final.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
     </div>
 
     <script src="src/static/js/animations.js"></script>

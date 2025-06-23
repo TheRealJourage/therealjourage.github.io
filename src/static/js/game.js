@@ -46,12 +46,12 @@ window.addEventListener('DOMContentLoaded', () => {
             candle: {
                 question: "\"I sleep in silence, slender and dry,\nBut strike me once, and flames will fly.\nBorn from friction, short I live—\nA spark, a flare, is all I give.\nWhat am I?\"",
                 answer: "match",
-                hint: "A tool for lighting the candle. You’re looking for a word, number of letters matching the answer for  Detective B's Atom Count Formula riddle answer + 1 letter.",
+                hint: "A tool for lighting the candle. You’re looking for a word, number of letters matching the answer for  Detective B's Atom Count Formula riddle answer - 1 letter.",
                 solved: false
             },
             bookshelf: {
-                question: `Three ancient books sit side-by-side on a dusty shelf:\nOne is titled Alchemy, one is Astrology, and one is Anatomy.\nEach has a different cover: red, green, or black.\nEach is written in a different language: Latin, Greek, or Arabic.\n\nClues:\n- The Alchemy book is somewhere to the left of the green book.\n- The Latin book is immediately next to the Anatomy book.\n- The black book is not written in Arabic.\n- The Astrology book is not next to the Alchemy book.\n- The green book is in the middle.\n\nGoal: Determine the correct order (from left to right) of the books by title, cover color, and language.`,
-                answer: "alchemy-red-greek,astrology-green-arabic,anatomy-black-latin",
+                question: `Three ancient books sit side-by-side on a dusty shelf:\nOne is titled Alchemy, one is Astrology, and one is Anatomy.\nEach has a different cover: red, green, or black.\nEach is written in a different language: Latin, Greek, or Arabic.\nThe Alchemy book is somewhere to the left of the green book\nThe Latin book is immediately next to the Anatomy book.\n The red book is not written in Arabic.\n- The black book is not next to the Alchemy book.\nThe green and book about structure of the human body is in the middle.\n\nGoal: Determine the correct order (from left to right) of the books by title, cover color, and language.`,
+                answer: "alchemy-anatomy-astrology,red-green-black,greek-arabic-latin",
                 hint: "Start with what’s fixed. Then think about what can’t be next to what",
                 solved: false
             },
@@ -82,15 +82,15 @@ window.addEventListener('DOMContentLoaded', () => {
             },
             // Security Room (Detective B - Room 2)
             safe: {
-                question: "The answer lies in the past — piece together what your partner revealed in Portrait and Typewriter.",
+                question: "The safe code lies in the past — passphrase together what your partner revealed in Portrait and Typewriter.",
                 answer: "37",
-                hint: "Combine the number of clock hands and the sum of the row numbers into a single passphrase in ascending order.",
+                hint: "Combine the number of clock hands and the sum of the row numbers in typewriter into a single passphrase in ascending order.",
                 solved: false
             },
             monitor: {
-                question: "A flickering feed shows a comet. It returns every 76 years. What’s its name?",
-                answer: "halley",
-                hint: "Sounds like ‘Valley’, and it starts with H. Famous celestial object visible to the naked eye.",
+                question: "Three security cameras monitor the halls.\nOne glitches every 4 minutes, another every 6 minutes, and the last every 9 minutes.\nAt exactly 10:00 AM, they all glitched at the same time.\n\nAt what time will they next all glitch together?",
+                answer: "36",
+                hint: "Think of their glitch intervals like clockwork patterns. When do all patterns overlap again?",
                 solved: false
             },
             securityDoor: {
@@ -134,18 +134,17 @@ window.addEventListener('DOMContentLoaded', () => {
         riddleModal = document.createElement('div');
         riddleModal.id = 'riddle-modal';
         riddleModal.style = 'display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:520px; max-width:90vw; min-width:340px; background:rgba(34,34,34,0.98); z-index:999; justify-content:center; align-items:center; border-radius:18px; box-shadow:0 8px 32px rgba(0,0,0,0.7);';
-        riddleModal.innerHTML = `
-      <div id="riddle-modal-content" style="background:none; color:#fff; border-radius:16px; padding:32px 32px 24px 32px; min-width:320px; max-width:90vw; text-align:center; position:relative;">
-        <div id="riddle-question" style="font-size:1.2rem; margin-bottom:16px;"></div>
-        <input id="riddle-answer" type="text" style="width:90%; padding:10px; font-size:1.1rem; margin-bottom:12px; border-radius:8px; border:none;" placeholder="Your answer..." />
-        <div style="margin-bottom:12px;">
-          <button id="riddle-hint-btn" style="margin-right:8px; padding:8px 22px; border-radius:8px; background:#444; color:#fff; border:none; cursor:pointer;">Hint</button>
-          <button id="riddle-submit-btn" style="padding:8px 22px; border-radius:8px; background:#D4AF37; color:#222; border:none; cursor:pointer;">Submit</button>
-        </div>
-        <div id="riddle-hint" style="display:none; background:#333; color:#FFD700; border-radius:8px; padding:10px; margin-bottom:8px; font-size:1rem;"></div>
-        <button id="riddle-cancel-btn" style="position:absolute; top:8px; right:8px; background:none; color:#fff; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
-      </div>
-    `;
+        riddleModal.innerHTML =
+          '<div id="riddle-modal-content" style="background:none; color:#fff; border-radius:16px; padding:32px 32px 24px 32px; min-width:320px; max-width:90vw; text-align:center; position:relative;">' +
+            '<div id="riddle-question" style="font-size:1.2rem; margin-bottom:16px;"></div>' +
+            '<input id="riddle-answer" type="text" style="width:90%; padding:10px; font-size:1.1rem; margin-bottom:12px; border-radius:8px; border:none;" placeholder="Your answer..." />' +
+            '<div style="margin-bottom:12px;">' +
+              '<button id="riddle-hint-btn" style="margin-right:8px; padding:8px 22px; border-radius:8px; background:#444; color:#fff; border:none; cursor:pointer;">Hint</button>' +
+              '<button id="riddle-submit-btn" style="padding:8px 22px; border-radius:8px; background:#D4AF37; color:#222; border:none; cursor:pointer;">Submit</button>' +
+            '</div>' +
+            '<div id="riddle-hint" style="display:none; background:#333; color:#FFD700; border-radius:8px; padding:10px; margin-bottom:8px; font-size:1rem;"></div>' +
+            '<button id="riddle-cancel-btn" style="position:absolute; top:8px; right:8px; background:none; color:#fff; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>' +
+          '</div>';
         gameView.appendChild(riddleModal);
     }
 
@@ -174,7 +173,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         }
                         const div = document.createElement('div');
                         div.className = className;
-                        div.textContent = `${data.sender}: ${data.text}`;
+                        div.textContent = data.sender + ': ' + data.text;
                         messages.appendChild(div);
                         messages.scrollTop = messages.scrollHeight;
                     }
@@ -187,12 +186,13 @@ window.addEventListener('DOMContentLoaded', () => {
             [gameState.player === 1 ? "player1Finished" : "player2Finished"]: true
         }, { merge: true });
 
+        // Always check if both finished and show ballroom for this player if so
         db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
             const data = doc.data();
             if (data.player1Finished && data.player2Finished) {
                 const div = document.createElement('div');
                 div.className = "message system";
-                div.textContent = "System: Both players are ready! Proceeding to the final stage...";
+                div.textContent = "System: Both players are ready! Proceeding to the Ballroom...";
                 messages.appendChild(div);
                 messages.scrollTop = messages.scrollHeight;
                 showTransitionOverlay();
@@ -200,17 +200,32 @@ window.addEventListener('DOMContentLoaded', () => {
                     hideTransitionOverlay();
                     player1Scene2.style.display = "none";
                     player2Scene2.style.display = "none";
-                    finalScene.style.display = 'block';
+                    document.getElementById('ballroom-final').style.display = 'flex';
                 }, 1500);
             }
         });
+
+        // If this player finished both rooms, show ballroom for them (even if partner hasn't finished yet)
+        setTimeout(() => {
+            const ballroom = document.getElementById('ballroom-final');
+            if (
+                (gameState.player === 1 && gameState.riddleState.chest.solved && gameState.riddleState.bookshelf.solved && gameState.riddleState.candle.solved) ||
+                (gameState.player === 2 && gameState.riddleState.safe.solved && gameState.riddleState.monitor.solved && gameState.riddleState.securityDoor.solved)
+            ) {
+                player1Scene2.style.display = "none";
+                player2Scene2.style.display = "none";
+                if (ballroom) ballroom.style.display = 'flex';
+                // Hide finalScene if it was shown by old logic
+                if (finalScene) finalScene.style.display = 'none';
+            }
+        }, 1600);
     }
 
     function addCompletedChallenge(objectName) {
         const li = document.createElement('li');
-        li.textContent = `✅ ${objectName} Challenge Fixed`;
+        li.textContent = '\u2705 ' + objectName + ' Challenge Fixed';
         challengeList.appendChild(li);
-        const obj = document.querySelector(`.game-object[data-object="${objectName}"]`);
+        const obj = document.querySelector('.game-object[data-object="' + objectName + '"]');
         if (obj) obj.classList.add("solved-object");
     }
 
@@ -220,45 +235,72 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('riddle-hint').textContent = riddle.hint;
         // Custom input for bookshelf puzzle
         if (riddle === gameState.riddleState.bookshelf) {
+            // Make modal taller and wider for bookshelf
+            riddleModal.style.width = '800px';
+            riddleModal.style.minHeight = '520px';
             document.getElementById('riddle-answer').style.display = 'none';
-            if (!document.getElementById('bookshelf-title')) {
-                const modalContent = document.getElementById('riddle-modal-content');
-                const titleInput = document.createElement('input');
-                titleInput.id = 'bookshelf-title';
-                titleInput.type = 'text';
-                titleInput.placeholder = 'Titles (comma separated)';
-                titleInput.style = 'width:80%; padding:8px; font-size:1rem; margin-bottom:8px; border-radius:6px; border:none;';
-                const colorInput = document.createElement('input');
-                colorInput.id = 'bookshelf-color';
-                colorInput.type = 'text';
-                colorInput.placeholder = 'Colors (comma separated)';
-                colorInput.style = 'width:80%; padding:8px; font-size:1rem; margin-bottom:8px; border-radius:6px; border:none;';
-                const langInput = document.createElement('input');
-                langInput.id = 'bookshelf-language';
-                langInput.type = 'text';
-                langInput.placeholder = 'Languages (comma separated)';
-                langInput.style = 'width:80%; padding:8px; font-size:1rem; margin-bottom:12px; border-radius:6px; border:none;';
-                modalContent.insertBefore(titleInput, document.getElementById('riddle-hint-btn').parentNode);
-                modalContent.insertBefore(colorInput, document.getElementById('riddle-hint-btn').parentNode);
-                modalContent.insertBefore(langInput, document.getElementById('riddle-hint-btn').parentNode);
-            } else {
-                document.getElementById('bookshelf-title').style.display = '';
-                document.getElementById('bookshelf-color').style.display = '';
-                document.getElementById('bookshelf-language').style.display = '';
+            // Remove old grid if present
+            const oldGrid = document.getElementById('bookshelf-grid');
+            if (oldGrid) oldGrid.remove();
+            // Add 9 small boxes (3x3 grid)
+            const modalContent = document.getElementById('riddle-modal-content');
+            const grid = document.createElement('div');
+            grid.id = 'bookshelf-grid';
+            grid.style = 'display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; justify-items:center;';
+            const labels = ['Title', 'Color', 'Language'];
+            const ids = ['title', 'color', 'lang'];
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.maxLength = 12;
+                    input.style = 'width:110px; padding:6px; font-size:1rem; border-radius:6px; border:none; text-align:center;';
+                    input.placeholder = labels[row] + ' ' + (col+1);
+                    input.id = 'bookshelf-' + ids[row] + (col+1);
+                    grid.appendChild(input);
+                }
             }
+            modalContent.insertBefore(grid, document.getElementById('riddle-hint-btn').parentNode);
+        } else if (riddle === gameState.riddleState.monitor) {
+            riddleModal.style.width = '520px';
+            riddleModal.style.minHeight = '';
+            document.getElementById('riddle-answer').style.display = 'none';
+            // Remove old monitor input if present
+            const oldMonitor = document.getElementById('monitor-answer-box');
+            if (oldMonitor) oldMonitor.remove();
+            // Add custom answer input for monitor
+            const modalContent = document.getElementById('riddle-modal-content');
+            const monitorDiv = document.createElement('div');
+            monitorDiv.id = 'monitor-answer-box';
+            monitorDiv.style = 'margin-bottom:16px;';
+            monitorDiv.innerHTML = '<span style="font-size:1.2rem;">10: </span>' +
+                '<input id="monitor-answer" type="text" maxlength="2" style="width:40px; padding:6px; font-size:1.2rem; text-align:center; border-radius:6px; border:none; margin:0 6px;">' +
+                '<span style="font-size:1.2rem;"> AM</span>';
+            modalContent.insertBefore(monitorDiv, document.getElementById('riddle-hint-btn').parentNode);
+            // Always set submit button label to 'Submit' for all riddles
+            document.getElementById('riddle-submit-btn').textContent = 'Submit';
         } else {
+            riddleModal.style.width = '520px';
+            riddleModal.style.minHeight = '';
             document.getElementById('riddle-answer').style.display = '';
-            if (document.getElementById('bookshelf-title')) {
-                document.getElementById('bookshelf-title').style.display = 'none';
-                document.getElementById('bookshelf-color').style.display = 'none';
-                document.getElementById('bookshelf-language').style.display = 'none';
-            }
+            // Remove bookshelf grid if present
+            const oldGrid = document.getElementById('bookshelf-grid');
+            if (oldGrid) oldGrid.remove();
+            // Remove monitor input if present
+            const oldMonitor = document.getElementById('monitor-answer-box');
+            if (oldMonitor) oldMonitor.remove();
+            // Always set submit button label to 'Submit' for all riddles
+            document.getElementById('riddle-submit-btn').textContent = 'Submit';
         }
         riddleModal.style.display = 'flex';
-        if (riddle !== gameState.riddleState.bookshelf) {
-            document.getElementById('riddle-answer').focus();
+        if (riddle === gameState.riddleState.bookshelf) {
+            document.getElementById('bookshelf-title1').focus();
+        } else if (riddle === gameState.riddleState.monitor) {
+            document.getElementById('monitor-answer').focus();
+            document.getElementById('riddle-submit-btn').textContent = 'Submit';
         } else {
-            document.getElementById('bookshelf-title').focus();
+            document.getElementById('riddle-answer').focus();
+            document.getElementById('riddle-submit-btn').textContent = 'Submit';
         }
 
         document.getElementById('riddle-hint-btn').onclick = () => {
@@ -266,11 +308,19 @@ window.addEventListener('DOMContentLoaded', () => {
         };
         document.getElementById('riddle-submit-btn').onclick = () => {
             if (riddle === gameState.riddleState.bookshelf) {
-                const title = document.getElementById('bookshelf-title').value.trim();
-                const color = document.getElementById('bookshelf-color').value.trim();
-                const lang = document.getElementById('bookshelf-language').value.trim();
+                // Collect all 9 answers
+                const answers = [];
+                for (let row of ['title','color','lang']) {
+                    for (let col = 1; col <= 3; col++) {
+                        answers.push(document.getElementById('bookshelf-' + row + col).value.trim().toLowerCase());
+                    }
+                }
                 riddleModal.style.display = 'none';
-                onSubmit({title, color, lang});
+                onSubmit(answers);
+            } else if (riddle === gameState.riddleState.monitor) {
+                const monitorAns = document.getElementById('monitor-answer').value.trim();
+                riddleModal.style.display = 'none';
+                onSubmit(monitorAns);
             } else {
                 const answer = document.getElementById('riddle-answer').value;
                 riddleModal.style.display = 'none';
@@ -294,28 +344,21 @@ window.addEventListener('DOMContentLoaded', () => {
             if (!answer) return;
             let correct = false;
             if (objectName === 'bookshelf') {
-                // Accept answer as object: {title, color, lang}
-                const t = answer.title.toLowerCase().replace(/\s+/g, '');
-                const c = answer.color.toLowerCase().replace(/\s+/g, '');
-                const l = answer.lang.toLowerCase().replace(/\s+/g, '');
-                // Accept comma or dash separated, any order
-                const userCombo = `${t}-${c}-${l}`;
-                const expected = [
-                  'alchemy-red-greek',
-                  'astrology-green-arabic',
-                  'anatomy-black-latin'
-                ];
-                // Accept all three in order, comma separated
+                // answer is an array of 9 values: [title1, title2, title3, color1, color2, color3, lang1, lang2, lang3]
+                const expectedTitles = ['alchemy','anatomy','astrology'];
+                const expectedColors = ['red','green','black'];
+                const expectedLangs = ['greek','arabic','latin'];
                 correct = (
-                  userCombo === expected[0] ||
-                  userCombo === expected[1] ||
-                  userCombo === expected[2] ||
-                  `${t},${c},${l}` === riddle.answer
+                    answer[0] === expectedTitles[0] &&
+                    answer[1] === expectedTitles[1] &&
+                    answer[2] === expectedTitles[2] &&
+                    answer[3] === expectedColors[0] &&
+                    answer[4] === expectedColors[1] &&
+                    answer[5] === expectedColors[2] &&
+                    answer[6] === expectedLangs[0] &&
+                    answer[7] === expectedLangs[1] &&
+                    answer[8] === expectedLangs[2]
                 );
-                // Accept all three as a single string
-                if (
-                  `${t},${c},${l}`.replace(/\s+/g, '') === riddle.answer.replace(/\s+/g, '')
-                ) correct = true;
             } else {
                 const cleaned = typeof answer === 'string' ? answer.trim().toLowerCase() : '';
                 correct = cleaned === riddle.answer.toLowerCase() ||
@@ -324,7 +367,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if (correct) {
                 riddle.solved = true;
-                sendMessage(`${gameState.playerName} solved ${objectName}`, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                sendMessage(gameState.playerName + ' solved ' + objectName, gameState.player === 1 ? 'Player 1' : 'Player 2');
                 addCompletedChallenge(objectName);
 
                 if (objectName === 'finale') {
@@ -382,7 +425,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
 
             } else {
-                sendMessage(`${gameState.playerName} attempted ${objectName} but failed`, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                sendMessage(gameState.playerName + ' attempted ' + objectName + ' but failed', gameState.player === 1 ? 'Player 1' : 'Player 2');
             }
         });
     }
@@ -392,9 +435,9 @@ window.addEventListener('DOMContentLoaded', () => {
         gameContainer.style.display = 'none';
         waitingRoom.style.display = 'block';
         if (isPlayer1) {
-            waitingMessages.innerHTML = `<div>Detective A joined</div><div>Waiting for Detective B</div>`;
+            waitingMessages.innerHTML = '<div>Detective A joined</div><div>Waiting for Detective B</div>';
         } else {
-            waitingMessages.innerHTML = `<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>`;
+            waitingMessages.innerHTML = '<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>';
         }
     }
 
@@ -433,7 +476,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (aJoined && !bJoined) {
                     showWaitingRoom(true);
                 } else if (aJoined && bJoined) {
-                    waitingMessages.innerHTML = `<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>`;
+                    waitingMessages.innerHTML = '<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>';
                     setTimeout(() => {
                         showIntroVideoAndStartGame();
                     }, 1200);
@@ -449,27 +492,65 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Background Audio Setup ---
+    let bgAudio = new Audio('../static/audios/Horror_Background.mp3');
+    bgAudio.loop = true;
+    bgAudio.volume = 0.5;
+    let audioEnabled = true;
+    const volumeSlider = document.getElementById('volume');
+    const muteBtn = document.getElementById('mute-toggle');
+
+    function playBgAudio() {
+        if (audioEnabled) {
+            bgAudio.play().catch(()=>{});
+        }
+    }
+    function pauseBgAudio() {
+        bgAudio.pause();
+        bgAudio.currentTime = 0;
+    }
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', e => {
+            bgAudio.volume = parseFloat(e.target.value);
+        });
+    }
+    if (muteBtn) {
+        muteBtn.addEventListener('click', () => {
+            audioEnabled = !audioEnabled;
+            if (audioEnabled) {
+                muteBtn.textContent = 'Mute';
+                playBgAudio();
+            } else {
+                muteBtn.textContent = 'Unmute';
+                pauseBgAudio();
+            }
+        });
+    }
+    // --- Play audio only in game rooms, pause on transition overlay ---
+    function showTransitionOverlay(message = 'Proceeding to the next room...') {
+        transitionMessage.textContent = message;
+        transitionOverlay.style.display = 'flex';
+        pauseBgAudio();
+    }
+    function hideTransitionOverlay() {
+        transitionOverlay.style.display = 'none';
+        playBgAudio();
+    }
+    // Play audio when entering game rooms
     function startGame() {
         lobby.style.display = 'none';
         gameContainer.style.display = 'grid';
         playerRole.textContent = gameState.player === 1 ? 'Detective A' : 'Detective B';
         roomCodeDisplay.textContent = gameState.roomId;
+        playBgAudio();
         if (gameState.player === 1) player1Scene.style.display = 'block';
         else player2Scene.style.display = 'block';
 
-        sendMessage(`You are connected with ${gameState.partnerName}`, "System");
+        sendMessage('You are connected with ' + gameState.partnerName, 'System');
         sendMessage("Solve your puzzles to progress!", "System");
 
         gameObjects.forEach(obj => obj.addEventListener('click', handleRiddleClick));
         listenForMessages();
-    }
-
-    function showTransitionOverlay(message = 'Proceeding to the next room...') {
-        transitionMessage.textContent = message;
-        transitionOverlay.style.display = 'flex';
-    }
-    function hideTransitionOverlay() {
-        transitionOverlay.style.display = 'none';
     }
 
     createBtn.addEventListener('click', () => {
@@ -486,7 +567,7 @@ window.addEventListener('DOMContentLoaded', () => {
         });
         showWaitingRoom(true);
         listenForPlayers();
-        alert(`Room created. Share code: ${gameState.roomId}`);
+        alert('Room created. Share code: ' + gameState.roomId);
     });
 
     joinBtn.addEventListener('click', () => {
@@ -530,6 +611,28 @@ window.addEventListener('DOMContentLoaded', () => {
                 alert("Wrong answer. Try again.");
             }
         });
+    });
+
+    // Leave Game button: redirect to menu (lobby)
+    const leaveBtn = document.getElementById('leave-btn');
+    if (leaveBtn) {
+        leaveBtn.onclick = () => {
+            // Clear session
+            localStorage.removeItem('playerName');
+            localStorage.removeItem('player');
+            localStorage.removeItem('roomId');
+            // Optionally, clear any other state
+            // Show lobby, hide game
+            gameContainer.style.display = 'none';
+            lobby.style.display = 'flex';
+            // Optionally reload page for a clean state
+            // location.reload();
+        };
+    }
+
+    // Change Monitor object label in Security Room to 'Camera Feed'
+    document.querySelectorAll('.game-object[data-object="monitor"]').forEach(function(el) {
+        el.textContent = 'Camera Feed';
     });
 
 });

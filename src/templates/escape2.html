@@ -417,6 +417,13 @@
     font-size: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
+
+    <!-- Ballroom Final Room Placeholder -->
+    <div id="ballroom-final" class="scene" style="display:none; width:100%; height:100%; background:#222; align-items:center; justify-content:center; flex-direction:column; position:absolute; top:0; left:0; z-index:10;">
+      <h1 style="color:#FFD700; margin-top:120px;">Ballroom</h1>
+      <p style="color:#fff; font-size:1.5rem;">Both detectives have arrived at the grand ballroom.<br>Final puzzles and secrets await here!</p>
+      <div style="width:100%;height:300px;background:#444;opacity:0.3;margin:32px 0 0 0;"></div>
+    </div>
     </style>
 </head>
 <body>
@@ -446,9 +453,13 @@
                     <div class="progress" id="game-progress"></div>
                 </div>
             </div>
-            <div>
-                <button id="hint-btn">Hint</button>
-                <button id="leave-btn">Leave Game</button>
+            <div style="display:flex; align-items:center; gap:16px; position:relative; min-width:320px; justify-content:flex-end;">
+                <span style="display:flex; align-items:center; gap:8px; margin-right:10px;">
+                  <label for="volume" style="color:#fff;">Volume:</label>
+                  <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+                  <button id="mute-toggle">Mute</button>
+                </span>
+                <button id="leave-btn" style="position:static;">Leave Game</button>
             </div>
         </div>
 
@@ -541,12 +552,6 @@
         <h1>Welcome to the Next Room</h1>
         <p>Continue your adventure and solve the next set of puzzles!</p>
         <button id="start-next-room">Start</button>
-    </div>
-
-    <div id="audio-controls">
-        <label for="volume">Volume:</label>
-        <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
-        <button id="mute-toggle">Mute</button>
     </div>
 
     <!-- Waiting Room Screen -->

@@ -428,7 +428,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if (correct) {
                 riddle.solved = true;
-                sendMessage(gameState.playerName + ' solved ' + objectName+ ': ' + riddle.answer, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                sendMessage(gameState.playerName + ' solved ' + objectName+ " in the Room " + ': ' + riddle.answer, 
+                gameState.player === 1 ? 'Player 1' : 'Player 2');
                 addCompletedChallenge(objectName);
 
                 if (objectName === 'finale') {

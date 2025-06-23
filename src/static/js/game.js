@@ -98,6 +98,28 @@ window.addEventListener('DOMContentLoaded', () => {
                 answer: "password",
                 hint: "You don’t carry this in your pocket, but you enter this to gain access. Often changed, sometimes forgotten. Starts with letter P.",
                 solved: false
+            },
+            // Ballroom_1 (Detective A - Room 3)
+            portrait_ballroom: {
+                question: "The portrait shows Alistair Blackwood. What number is hidden in the curtain folds?",
+                answer: "3",
+                solved: false
+            },
+            chandelier: {
+                question: "How many arms does the chandelier have?",
+                answer: "5",
+                solved: false
+            },
+            // Ballroom_2 (Detective B - Room 3)
+            fireplace: {
+                question: "What symbol is carved into the fireplace mantel?",
+                answer: "skull",
+                solved: false
+            },
+            damaged_floor: {
+                question: "What number is etched beneath the broken tile?",
+                answer: "1",
+                solved: false
             }
         }
     };
@@ -217,6 +239,60 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (ballroom) ballroom.style.display = 'flex';
                 // Hide finalScene if it was shown by old logic
                 if (finalScene) finalScene.style.display = 'none';
+            }
+        }, 1600);
+
+        // If this player finished their ballroom, show the final ballroom for both
+        setTimeout(() => {
+            const ballroomFinal = document.getElementById('ballroom-final');
+            if (
+                (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
+                (gameState.player === 2 && gameState.riddleState.fireplace.solved && gameState.riddleState.damaged_floor.solved)
+            ) {
+                document.getElementById('player1-ballroom').style.display = 'none';
+                document.getElementById('player2-ballroom').style.display = 'none';
+                if (ballroomFinal) ballroomFinal.style.display = 'flex';
+                if (finalScene) finalScene.style.display = 'none';
+            }
+        }, 1600);
+
+        // After solving both ballroom riddles, show waiting screen for this player
+        setTimeout(() => {
+            if (
+                (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
+                (gameState.player === 2 && gameState.riddleState.fireplace.solved && gameState.riddleState.damaged_floor.solved)
+            ) {
+                document.getElementById('player1-ballroom').style.display = 'none';
+                document.getElementById('player2-ballroom').style.display = 'none';
+                showTransitionOverlay('Waiting for the other detective to finish...');
+                db.collection("rooms").doc(gameState.roomId).set({
+                    [gameState.player === 1 ? "player1BallroomDone" : "player2BallroomDone"]: true
+                }, { merge: true });
+                // Listen for both players to finish
+                db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
+                    const data = doc.data();
+                    if (data.player1BallroomDone && data.player2BallroomDone) {
+                        hideTransitionOverlay();
+                        // Show final video overlay
+                        const finalVideoOverlay = document.getElementById('final-video-overlay');
+                        finalVideoOverlay.style.display = 'flex';
+                        const finalVideo = document.getElementById('final-video');
+                        finalVideo.currentTime = 0;
+                        finalVideo.play();
+                        finalVideo.onended = () => {
+                            finalVideoOverlay.style.display = 'none';
+                            // Show congrats overlay for 10 seconds
+                            const congrats = document.getElementById('eternalis-congrats');
+                            congrats.style.display = 'flex';
+                            setTimeout(() => {
+                                congrats.style.display = 'none';
+                                // Redirect to lobby
+                                lobby.style.display = 'flex';
+                                gameContainer.style.display = 'none';
+                            }, 10000);
+                        };
+                    }
+                });
             }
         }, 1600);
     }
@@ -400,27 +476,18 @@ window.addEventListener('DOMContentLoaded', () => {
                     showTransitionOverlay();
                     setTimeout(() => {
                         hideTransitionOverlay();
-                        sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
-                        updateFinishState();
+                        player1Scene2.style.display = 'none';
+                        document.getElementById('player1-ballroom').style.display = 'block';
+                        sendMessage("Detective A entered Ballroom 1.", "System");
                     }, 1500);
                 }
-
-                if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
-                    showTransitionOverlay();
-                    setTimeout(() => {
-                        hideTransitionOverlay();
-                        player2Scene.style.display = 'none';
-                        player2Scene2.style.display = 'block';
-                        sendMessage("Detective B completed Labo.", "System");
-                    }, 1500);
-                }
-
                 if (gameState.player === 2 && isLastUnsolved(player2Set2)) {
                     showTransitionOverlay();
                     setTimeout(() => {
                         hideTransitionOverlay();
-                        sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
-                        updateFinishState();
+                        player2Scene2.style.display = 'none';
+                        document.getElementById('player2-ballroom').style.display = 'block';
+                        sendMessage("Detective B entered Ballroom 2.", "System");
                     }, 1500);
                 }
 

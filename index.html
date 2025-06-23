@@ -507,6 +507,19 @@
     <div class="game-object" style="top: 300px; left: 550px;" data-object="artifact">Golden Artifact</div>
 </div>
 
+            <!-- Player 1 Ballroom (Room 3) -->
+            <div id="player1-ballroom" class="scene" style="display: none;">
+                <img src="src/static/images/player1-ballroom.png" alt="Ballroom 1" class="scene-bg">
+                <div class="game-object" style="top: 180px; left: 700px;" data-object="portrait_ballroom">Portrait</div>
+                <div class="game-object" style="top: 120px; left: 400px;" data-object="chandelier">Chandelier</div>
+            </div>
+
+            <!-- Player 2 Ballroom (Room 3) -->
+            <div id="player2-ballroom" class="scene" style="display: none;">
+                <img src="src/static/images/player2-ballroom.png" alt="Ballroom 2" class="scene-bg">
+                <div class="game-object" style="top: 300px; left: 500px;" data-object="fireplace">Fireplace</div>
+                <div class="game-object" style="top: 420px; left: 650px;" data-object="damaged_floor">Damaged Floor</div>
+            </div>
 
 
         </div>
@@ -574,6 +587,20 @@
       <div id="transition-message" style="position:absolute; left:50%; transform:translateX(-50%); bottom:10vh; background:rgba(0,0,0,0.7); border-radius:16px; padding:32px 48px; min-width:320px; text-align:center; color:#fff; font-size:2rem; box-shadow:0 8px 32px rgba(0,0,0,0.5);">
         Proceeding to the next room...
       </div>
+    </div>
+
+    <!-- Finale overlays for congrats and final video -->
+    <div id="eternalis-congrats" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:url('src/static/images/lobyBackground.png') no-repeat center center; background-size:cover; z-index:500; justify-content:center; align-items:center; flex-direction:column;">
+      <h1 style="color:#FFD700; font-size:3rem; margin-bottom:24px; text-shadow:2px 2px 8px #000;">Congratulations!</h1>
+      <p style="color:#fff; font-size:2rem; background:rgba(0,0,0,0.7); padding:32px 48px; border-radius:18px;">You found the Eternalis</p>
+    </div>
+
+    <!-- Final video overlay -->
+    <div id="final-video-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:450; justify-content:center; align-items:center; background:url('src/static/images/lobyBackground.png') no-repeat center center; background-size:cover;">
+      <video id="final-video" width="960" height="540" style="max-width:90vw; max-height:90vh; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.7); background:#000;" controls>
+        <source src="src/static/videos/final.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
     </div>
 
     <script src="src/static/js/animations.js"></script>

@@ -208,42 +208,7 @@ window.addEventListener('DOMContentLoaded', () => {
             [gameState.player === 1 ? "player1Finished" : "player2Finished"]: true
         }, { merge: true });
 
-        // Always check if both finished and show ballroom for this player if so
-        db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
-            const data = doc.data();
-            if (data.player1Finished && data.player2Finished) {
-                const div = document.createElement('div');
-                div.className = "message system";
-                div.textContent = "System: Both players are ready! Proceeding to the Ballroom...";
-                messages.appendChild(div);
-                messages.scrollTop = messages.scrollHeight;
-                showTransitionOverlay();
-                setTimeout(() => {
-                    hideTransitionOverlay();
-                    player1Scene2.style.display = "none";
-                    player2Scene2.style.display = "none";
-                    document.getElementById('ballroom-final').style.display = 'flex';
-                }, 1500);
-            }
-        });
-
-        // If this player finished both rooms, show ballroom for them (even if partner hasn't finished yet)
-        setTimeout(() => {
-            const ballroom = document.getElementById('ballroom-final');
-            if (
-                (gameState.player === 1 && gameState.riddleState.chest.solved && gameState.riddleState.bookshelf.solved && gameState.riddleState.candle.solved) ||
-                (gameState.player === 2 && gameState.riddleState.safe.solved && gameState.riddleState.monitor.solved && gameState.riddleState.securityDoor.solved)
-            ) {
-                player1Scene2.style.display = "none";
-                player2Scene2.style.display = "none";
-                if (ballroom) ballroom.style.display = 'flex';
-                // Hide finalScene if it was shown by old logic
-                if (finalScene) finalScene.style.display = 'none';
-            }
-        }, 1600);
-
-        // Remove old ballroom-final and finalScene logic
-        // After solving both rooms, show player-specific ballroom
+        // After solving both rooms, show player-specific ballroom as the third room
         setTimeout(() => {
             if (
                 gameState.player === 1 &&

@@ -437,8 +437,21 @@
     </div>
     <div id="game-container" style="display:none; height:100%; grid-template-columns:1fr 300px; grid-template-rows:auto 1fr 200px;">
         <div id="header">
-            <button id="leave-btn" style="margin-right:16px;">Leave Game</button>
-            <!-- ...existing header code... -->
+            <div>
+                <span id="player-role">Detective A</span> | 
+                Room: <span id="room-code-display">AAAA</span>
+                <div class="progress-bar">
+                    <div class="progress" id="game-progress"></div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px; position:relative; min-width:320px; justify-content:flex-end;">
+                <span style="display:flex; align-items:center; gap:8px; margin-right:10px;">
+                  <label for="volume" style="color:#fff;">Volume:</label>
+                  <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+                  <button id="mute-toggle">Mute</button>
+                </span>
+                <button id="leave-btn" style="position:static;">Leave Game</button>
+            </div>
         </div>
         <div id="game-view">
             <!-- Detective A: STUDY -->

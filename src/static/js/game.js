@@ -15,7 +15,7 @@ window.addEventListener('DOMContentLoaded', () => {
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
+// unnecessary comment 
     const gameState = {
         player: null,
         roomId: null,

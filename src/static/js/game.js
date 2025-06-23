@@ -22,6 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
         playerName: null,
         partnerName: null,
         finished: false,
+        started: false, // <-- add this flag
         riddleState: {
             // Study (Detective A - Room 1)
             portrait: {
@@ -540,16 +541,27 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('game-progress').style.width = '0%';
         document.getElementById('hint-text').textContent = '';
         document.getElementById('challenge-list').innerHTML = '';
+        // Remove solved-object classes
+        document.querySelectorAll('.game-object.solved-object').forEach(obj => obj.classList.remove('solved-object'));
         // Reset gameState object (keep only persistent properties if needed)
         if (window.gameState) {
-            window.gameState = {};
+            window.gameState = { started: false };
         }
         // Remove any skip button from previous intro
         const skipBtn = document.getElementById('skip-intro-btn');
         if (skipBtn && skipBtn.parentNode) skipBtn.parentNode.removeChild(skipBtn);
+        // Remove skip button from final video
+        const skipFinalBtn = document.getElementById('skip-final-btn');
+        if (skipFinalBtn && skipFinalBtn.parentNode) skipFinalBtn.parentNode.removeChild(skipFinalBtn);
+        // Pause and reset background audio
+        pauseBgAudio();
+        audioEnabled = true;
+        if (muteBtn) muteBtn.textContent = 'Mute';
     }
 
     function showIntroVideoAndStartGame() {
+        if (gameState.started) return; // Prevent double intro
+        gameState.started = true;
         waitingRoom.style.display = 'none';
         introVideoOverlay.style.display = 'flex';
         introVideo.currentTime = 0;
@@ -585,14 +597,14 @@ window.addEventListener('DOMContentLoaded', () => {
             if (gameState.player === 1) {
                 if (aJoined && !bJoined) {
                     showWaitingRoom(true);
-                } else if (aJoined && bJoined) {
+                } else if (aJoined && bJoined && !gameState.started) {
                     waitingMessages.innerHTML = '<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>';
                     setTimeout(() => {
                         showIntroVideoAndStartGame();
                     }, 1200);
                 }
             } else if (gameState.player === 2) {
-                if (aJoined && bJoined) {
+                if (aJoined && bJoined && !gameState.started) {
                     showWaitingRoom(false);
                     setTimeout(() => {
                         showIntroVideoAndStartGame();
@@ -774,13 +786,13 @@ window.addEventListener('DOMContentLoaded', () => {
                     showTransitionOverlay('Both detectives are finished, proceeding...');
                     setTimeout(() => {
                         hideTransitionOverlay();
-                        // Show final video overlay
+                        // Show final video overlay (only for this player, not synced)
                         const finalVideoOverlay = document.getElementById('final-video-overlay');
                         finalVideoOverlay.style.display = 'flex';
                         const finalVideo = document.getElementById('final-video');
                         finalVideo.currentTime = 0;
                         finalVideo.play();
-                        // Add skip button for final video (per player)
+                        // Add skip button for final video (local only)
                         let skipFinalBtn = document.getElementById('skip-final-btn');
                         if (!skipFinalBtn) {
                             skipFinalBtn = document.createElement('button');

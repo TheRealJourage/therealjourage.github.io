@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackwood Manor - 2 Player Adventure</title>
-      <link rel="stylesheet" href="../static/css/main_layout.css">
+      <link rel="stylesheet" href="src/static/css/main_layout.css">
       <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -31,7 +31,7 @@
             justify-content: center;
             height: 100%;
             padding-top: 400px; 
-            background: url('/static/images/lobyBackground.png') no-repeat center center;
+            background: url('src/static/images/lobyBackground.png') no-repeat center center;
             background-size: cover;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
         }
@@ -334,6 +334,96 @@
         #next-room button:hover {
             background-color: #d03447;
         }
+
+        /* Waiting Room Styles */
+#waiting-room {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: url('src/static/images/lobyBackground.png') no-repeat center center;
+    background-size: cover;
+    z-index: 200;
+}
+
+#waiting-messages {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10vh;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 16px;
+    padding: 32px 48px;
+    min-width: 320px;
+    text-align: center;
+    color: #fff;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Intro Video Overlay */
+#intro-video-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: url('src/static/images/waiting_room.png') no-repeat center center;
+    background-size: cover;
+    z-index: 300;
+    justify-content: center;
+    align-items: center;
+}
+
+#intro-video {
+    width: 960px;
+    height: 540px;
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+    background: #000;
+}
+
+/* Transition Overlay */
+#transition-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: url('src/static/images/lobyBackground.png') no-repeat center center;
+    background-size: cover;
+    z-index: 400;
+    justify-content: center;
+    align-items: center;
+}
+
+#transition-message {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10vh;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 16px;
+    padding: 32px 48px;
+    min-width: 320px;
+    text-align: center;
+    color: #fff;
+    font-size: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+    <!-- Ballroom Final Room Placeholder -->
+    <div id="ballroom-final" class="scene" style="display:none; width:100%; height:100%; background:#222; align-items:center; justify-content:center; flex-direction:column; position:absolute; top:0; left:0; z-index:10;">
+      <h1 style="color:#FFD700; margin-top:120px;">Ballroom</h1>
+      <p style="color:#fff; font-size:1.5rem;">Both detectives have arrived at the grand ballroom.<br>Final puzzles and secrets await here!</p>
+      <div style="width:100%;height:300px;background:#444;opacity:0.3;margin:32px 0 0 0;"></div>
+    </div>
     </style>
 </head>
 <body>
@@ -363,9 +453,13 @@
                     <div class="progress" id="game-progress"></div>
                 </div>
             </div>
-            <div>
-                <button id="hint-btn">Hint</button>
-                <button id="leave-btn">Leave Game</button>
+            <div style="display:flex; align-items:center; gap:16px; position:relative; min-width:320px; justify-content:flex-end;">
+                <span style="display:flex; align-items:center; gap:8px; margin-right:10px;">
+                  <label for="volume" style="color:#fff;">Volume:</label>
+                  <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+                  <button id="mute-toggle">Mute</button>
+                </span>
+                <button id="leave-btn" style="position:static;">Leave Game</button>
             </div>
         </div>
 
@@ -373,9 +467,9 @@
             <!-- Player 1 sees the study room -->
             <div id="player1-scene" class="scene" style="display: none;">
                 <img src="src/static/images/study_room.png" alt="Study Room" class="scene-bg">
-                <div class="game-object" style="top: 270px; left: 320px;" data-object="lamp">Lamp</div>
-                <div class="game-object" style="top: 375px; left: 230px;" data-object="typewriter">Typewriter</div>
                 <div class="game-object" style="top: 150px; left: 800px;" data-object="portrait">Portrait</div>
+                <div class="game-object" style="top: 375px; left: 230px;" data-object="typewriter">Typewriter</div>
+                <div class="game-object" style="top: 270px; left: 320px;" data-object="cabinet">Cabinet</div>
             </div>
 
             <!-- Player 1 second scene: hidden library -->
@@ -384,22 +478,30 @@
                 <div class="game-object" style="top: 200px; left: 300px;" data-object="chest">Chest</div>
                 <div class="game-object" style="top: 350px; left: 600px;" data-object="bookshelf">Bookshelf</div>
                 <div class="game-object" style="top: 220px; left: 800px;" data-object="candle">Candle</div>
+                <div class="game-object" style="top: 350px; left: 600px;" data-object="bookshelf">Bookshelf</div>
+                <div class="game-object" style="top: 200px; left: 300px;" data-object="chest">Chest</div>
             </div>
 
             <!-- Player 2 -->
        <div id="player2-scene" class="scene" style="display: none;">
     <img src="src/static/images/abonded_lab.png" alt="Laboratory" class="scene-bg">
     <div class="game-object" style="top: 350px; left: 450px;" data-object="bloodStainedTable">Blood-stained Table</div>
-    <div class="game-object" style="top: 200px; left: 650px;" data-object="chalkboard">chalkboard</div>
+    <div class="game-object" style="top: 200px; left: 650px;" data-object="chalkboard">Chalkboard</div>
+    <div class="game-object" style="top: 350px; left: 450px;" data-object="bloodStainedTable">Blood-stained Table</div>
+    <div class="game-object" style="top: 120px; left: 300px;" data-object="hiddenFormula">Hidden Formula</div>
 </div>
 
 <div id="player2-scene-2" class="scene" style="display: none;">
     <img src="src/static/images/securityRoom.png" alt="Securety Room" class="scene-bg">
-    <div class="game-object" style="top: 400px; left: 200px;" data-object="bridge">Wooden Bridge</div>
-    <div class="game-object" style="top: 300px; left: 550px;" data-object="artifact">Golden Artifact</div>
+    <div class="game-object" style="top: 400px; left: 200px;" data-object="safe">Safe</div>
+    <div class="game-object" style="top: 300px; left: 550px;" data-object="monitor">Monitor</div>
+    <div class="game-object" style="top: 100px; left: 700px;" data-object="securityDoor">Security Door</div>
+    <div class="game-object" style="top: 400px; left: 200px;" data-object="safe">Safe</div>
+    <div class="game-object" style="top: 300px; left: 550px;" data-object="monitor">Monitor</div>
+    <div class="game-object" style="top: 100px; left: 700px;" data-object="securityDoor">Security Door</div>
 </div>
 
-<div id="final-stage" class="scene" style="display: none;">
+<div id="final-scene" class="scene" style="display: none;">
     <img src="src/static/images/inland_scene.png" alt="Inland Scene" class="scene-bg">
     <div class="game-object" style="top: 400px; left: 200px;" data-object="bridge">Wooden Bridge</div>
     <div class="game-object" style="top: 300px; left: 550px;" data-object="artifact">Golden Artifact</div>
@@ -452,484 +554,29 @@
         <button id="start-next-room">Start</button>
     </div>
 
-    <div id="audio-controls">
-        <label for="volume">Volume:</label>
-        <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
-        <button id="mute-toggle">Mute</button>
+    <!-- Waiting Room Screen -->
+<div id="waiting-room" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:url('src/static/images/lobyBackground.png') no-repeat center center; background-size:cover; z-index:200;">
+  <div id="waiting-messages" style="position:absolute; left:50%; transform:translateX(-50%); bottom:10vh; background:rgba(0,0,0,0.6); border-radius:16px; padding:32px 48px; min-width:320px; text-align:center; color:#fff; font-size:1.5rem; box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+    <!-- Messages will be injected here by JS -->
+  </div>
+</div>
+
+    <!-- Intro Video Overlay -->
+    <div id="intro-video-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:300; justify-content:center; align-items:center;">
+      <video id="intro-video" width="960" height="540" style="max-width:90vw; max-height:90vh; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.7); background:#000;" controls>
+        <source src="../static/videos/intro.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
     </div>
 
-    <script src="src/static/js/animations.js"></script>
-      <script src="src/static/js/game.js"></script>
-    <!-- <script>
-        // Game State
-        const gameState = {
-            player: null,
-            roomId: null,
-            playerName: null,
-            partnerName: null,
-            inventory: [],
-            progress: 0,
-            currentStage: 1,
-            stages: [
-                {
-                    name: "Unlock the Chest",
-                    player1Goal: "Find a way to open the captain's treasure chest. It may contain vital information.",
-                    player2Goal: "Search the island for clues about unlocking the chest. Check natural hiding spots.",
-                    player1Hint: "The chest needs a key. Ask your partner to check around the palm tree.",
-                    player2Hint: "Check the palm tree — the captain used to hide things there.",
-                    completed: false,
-                    triggers: {
-                        chestOpened: false,
-                        palmExamined: false
-                    }
-                },
-                {
-                    name: "Repair the Ship",
-                    player1Goal: "Repair the ship's wheel using tools to regain control.",
-                    player2Goal: "Search the strange markings on the island for hidden tools.",
-                    player1Hint: "The wheel is jammed. Tools are likely needed.",
-                    player2Hint: "Dig near the strange markings — something might be buried there.",
-                    completed: false,
-                    triggers: {
-                        wheelFixed: false,
-                        toolsFound: false
-                    }
-                },
-                {
-                    name: "Lower the Bridge",
-                    player1Goal: "Activate the lever on the ship to lower the island bridge.",
-                    player2Goal: "Search the chalkboard for a mysterious artifact that can activate the lever.",
-                    player1Hint: "The lever won’t budge — maybe it needs something ancient to activate it.",
-                    player2Hint: "The artifact in the chalkboard glows. It must have a purpose.",
-                    completed: false,
-                    triggers: {
-                        bridgeLowered: false,
-                        artifactFound: false
-                    }
-                }
-            ],
-            combinedItems: {
-                "key_and_log": {
-                    items: ["chest_key", "ship_log"],
-                    result: "The key fits the log's hidden compartment! You find a bloodStainedTable fragment.",
-                    newItem: "bloodStainedTable_fragment"
-                }
-            }
-        };
+    <!-- Transition Overlay -->
+    <div id="transition-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:url('src/static/images/lobyBackground.png') no-repeat center center; background-size:cover; z-index:400; justify-content:center; align-items:center;">
+      <div id="transition-message" style="position:absolute; left:50%; transform:translateX(-50%); bottom:10vh; background:rgba(0,0,0,0.7); border-radius:16px; padding:32px 48px; min-width:320px; text-align:center; color:#fff; font-size:2rem; box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+        Proceeding to the next room...
+      </div>
+    </div>
 
-        // DOM elements
-        const lobby = document.getElementById('lobby');
-        const gameContainer = document.getElementById('game-container');
-        const createBtn = document.getElementById('create-btn');
-        const joinBtn = document.getElementById('join-btn');
-        const leaveBtn = document.getElementById('leave-btn');
-        const player1Scene = document.getElementById('player1-scene');
-        const player2Scene = document.getElementById('player2-scene');
-        const playerRole = document.getElementById('player-role');
-        const roomCodeDisplay = document.getElementById('room-code-display');
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        const messages = document.getElementById('messages');
-        const gameProgress = document.getElementById('game-progress');
-        const hintText = document.getElementById('hint-text');
-        const currentHint = document.getElementById('current-hint');
-        const hintPopup = document.getElementById('hint-popup');
-        const hintContent = document.getElementById('hint-content');
-        const closeHint = document.getElementById('close-hint');
-        const nextRoom = document.getElementById('next-room');
-
-        // Add audio elements for click and success sounds
-        const clickSound = new Audio('../graphics/click.mp3');
-        const successSound = new Audio('../graphics/success.mp3');
-
-        // Play click sound on button clicks
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', () => {
-                clickSound.play();
-            });
-        });
-
-        // Audio controls logic
-        const volumeControl = document.getElementById('volume');
-        const muteToggle = document.getElementById('mute-toggle');
-        const audioElements = [clickSound, successSound];
-
-        volumeControl.addEventListener('input', (e) => {
-            const volume = e.target.value;
-            audioElements.forEach(audio => audio.volume = volume);
-        });
-
-        muteToggle.addEventListener('click', () => {
-            const isMuted = audioElements[0].muted;
-            audioElements.forEach(audio => audio.muted = !isMuted);
-            muteToggle.textContent = isMuted ? 'Mute' : 'Unmute';
-        });
-
-        // Initialize game with first stage
-        function initializeStage(stageNumber) {
-            const stage = gameState.stages[stageNumber - 1];
-            gameState.currentStage = stageNumber;
-            
-            if (gameState.player === 1) {
-                hintText.textContent = stage.player1Goal;
-            } else {
-                hintText.textContent = stage.player2Goal;
-            }
-            
-            currentHint.style.display = 'block';
-            updateProgress();
-        }
-
-        // Update progress bar
-        function updateProgress() {
-            const totalStages = gameState.stages.length;
-            const progressPercent = ((gameState.currentStage - 1) / totalStages) * 100;
-            gameProgress.style.width = `${progressPercent}%`;
-        }
-
-        // Check for stage completion
-        function checkStageCompletion() {
-            const currentStage = gameState.stages[gameState.currentStage - 1];
-            
-            let allComplete = true;
-            for (const trigger in currentStage.triggers) {
-                if (!currentStage.triggers[trigger]) {
-                    allComplete = false;
-                    break;
-                }
-            }
-            
-            if (allComplete) {
-                currentStage.completed = true;
-                advanceToNextStage();
-            }
-        }
-
-        // Move to next stage
-        function advanceToNextStage() {
-            if (gameState.currentStage < gameState.stages.length) {
-                gameState.currentStage++;
-                initializeStage(gameState.currentStage);
-                
-                // Show new objects based on stage
-                if (gameState.currentStage === 2) {
-                    document.querySelector('[data-object="log"]').style.display = 'block';
-                    document.querySelector('[data-object="lever"]').style.display = 'block';
-                } else if (gameState.currentStage === 3) {
-                    document.querySelector('[data-object="bridge"]').style.display = 'block';
-                    document.querySelector('[data-object="artifact"]').style.display = 'block';
-                }
-                
-                addMessage(`System: You've reached stage ${gameState.currentStage}!`);
-            } else {
-                // Game completed
-                addMessage("System: Congratulations! You've recovered the bloodStainedTable and escaped the island!");
-                document.getElementById('hint-text').textContent = "You've completed the adventure!";
-                playSuccessSound();
-                showNextRoom();
-            }
-            
-            updateProgress();
-        }
-
-        // Show next room section
-        function showNextRoom() {
-            gameContainer.style.display = 'none';
-            nextRoom.style.display = 'block';
-        }
-
-        // Trigger win animation on game completion
-        function onGameWin() {
-            playWinAnimation();
-        }
-
-        // Add item to inventory
-        function addInventoryItem(id, name) {
-            // Check if item already exists
-            if (gameState.inventory.includes(id)) return;
-            
-            gameState.inventory.push(id);
-            const item = document.createElement('div');
-            item.className = 'inventory-item';
-            item.setAttribute('data-item', id);
-            item.textContent = name;
-            document.getElementById('inventory-items').appendChild(item);
-            
-            // Add click handler for the new item
-            item.addEventListener('click', function() {
-                useInventoryItem(id, name);
-            });
-            
-            // Check for item combinations
-            checkItemCombinations();
-        }
-
-        // Use inventory item
-        function useInventoryItem(id, name) {
-            const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
-            const playerName = gameState.player === 1 ? 'Detective A' : 'Detective B';
-            
-            let message = "";
-            let trigger = null;
-            
-            if (id === 'chest_key') {
-                message = "A rusty old key. Maybe it fits the chest on the ship?";
-            } else if (id === 'ship_log') {
-                message = "The log mentions a secret mechanism near the ship's mast.";
-            } else if (id === 'tools') {
-                message = "These look like they could fix the ship's wheel.";
-            } else if (id === 'bloodStainedTable_fragment') {
-                message = "This bloodStainedTable fragment shows the location of the island's hidden treasure!";
-            } else if (id === 'golden_artifact') {
-                message = "The artifact glows strangely. It might activate something.";
-            }
-            
-            addMessage(`${playerName}: [Used ${name}] ${message}`, playerClass);
-            
-            // Special cases where using an item triggers progress
-            if (id === 'tools' && gameState.currentStage === 2) {
-                const wheel = document.querySelector('[data-object="wheel"]');
-                if (wheel) {
-                    addMessage(`${playerName}: Used the tools to repair the ship's wheel!`, playerClass);
-                    gameState.stages[1].triggers.wheelFixed = true;
-                    checkStageCompletion();
-                }
-            }
-        }
-
-        // Check for item combinations
-        function checkItemCombinations() {
-            for (const combo in gameState.combinedItems) {
-                const requiredItems = gameState.combinedItems[combo].items;
-                let hasAllItems = true;
-                
-                for (const item of requiredItems) {
-                    if (!gameState.inventory.includes(item)) {
-                        hasAllItems = false;
-                        break;
-                    }
-                }
-                
-                if (hasAllItems && !gameState.inventory.includes(gameState.combinedItems[combo].newItem)) {
-                    // Create combined object in the scene
-                    const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
-                    const playerName = gameState.player === 1 ? 'Detective A' : 'Detective B';
-                    
-                    addMessage(`System: ${gameState.combinedItems[combo].result}`);
-                    addInventoryItem(gameState.combinedItems[combo].newItem, "bloodStainedTable Fragment");
-                    
-                    // Remove this combination so it doesn't trigger again
-                    delete gameState.combinedItems[combo];
-                    break;
-                }
-            }
-        }
-
-        // Add message to chat
-        function addMessage(text, playerClass = "") {
-            const message = document.createElement('div');
-            message.className = `message ${playerClass}`;
-            message.textContent = text;
-            messages.appendChild(message);
-            messages.scrollTop = messages.scrollHeight;
-        }
-
-        // Show hint
-        function showHint() {
-            const currentStage = gameState.stages[gameState.currentStage - 1];
-            hintContent.innerHTML = gameState.player === 1 ? currentStage.player1Hint : currentStage.player2Hint;
-            hintPopup.style.display = 'block';
-        }
-
-        // Initialize the game
-        function startGame() {
-            lobby.style.display = 'none';
-            gameContainer.style.display = 'grid';
-            
-            if (gameState.player === 1) {
-                playerRole.textContent = "Detective A";
-                player1Scene.style.display = 'block';
-            } else {
-                playerRole.textContent = "Detective B";
-                player2Scene.style.display = 'block';
-            }
-            
-            roomCodeDisplay.textContent = gameState.roomId;
-            initializeStage(1);
-            
-            addMessage(`System: You are connected with ${gameState.partnerName}!`);
-            addMessage(`System: Work together to solve the puzzles and escape!`);
-        }
-
-        // Event listeners
-        createBtn.addEventListener('click', () => {
-            const playerName = document.getElementById('player1-name').value.trim();
-            if (!playerName) {
-                alert("Please enter your name");
-                return;
-            }
-            
-            // In a real implementation, this would call a server
-            const roomId = Math.random().toString(36).substr(2, 4).toUpperCase();
-            gameState.player = 1;
-            gameState.playerName = playerName;
-            gameState.roomId = roomId;
-            
-            // Simulate partner joining after 1 second
-            setTimeout(() => {
-                gameState.partnerName = "Detective A";
-                startGame();
-            }, 1000);
-            
-            alert(`Room created! Share this code with your partner: ${roomId}`);
-        });
-
-        joinBtn.addEventListener('click', () => {
-            const playerName = document.getElementById('player2-name').value.trim();
-            const roomId = document.getElementById('room-id').value.trim().toUpperCase();
-            
-            if (!playerName) {
-                alert("Please enter your name");
-                return;
-            }
-            
-            if (!roomId || roomId.length !== 4) {
-                alert("Please enter a valid 4-character room code");
-                return;
-            }
-            
-            // In a real implementation, this would call a server
-            gameState.player = 2;
-            gameState.playerName = playerName;
-            gameState.roomId = roomId;
-            gameState.partnerName = "Detective A";
-            
-            startGame();
-        });
-
-        leaveBtn.addEventListener('click', () => {
-            if (confirm("Are you sure you want to leave the game?")) {
-                gameContainer.style.display = 'none';
-                lobby.style.display = 'flex';
-                // Reset game state
-                gameState.player = null;
-                gameState.roomId = null;
-                gameState.inventory = [];
-                gameState.currentStage = 1;
-                document.getElementById('inventory-items').innerHTML = '';
-                messages.innerHTML = '';
-            }
-        });
-
-        chatForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const message = chatInput.value.trim();
-            if (message) {
-                const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
-                const playerName = gameState.player === 1 ? 'Detective A' : 'Detective B';
-                addMessage(`${playerName}: ${message}`, playerClass);
-                chatInput.value = '';
-            }
-        });
-
-        // Object interaction
-        document.querySelectorAll('.game-object').forEach(obj => {
-            obj.addEventListener('click', function() {
-                const objectName = this.getAttribute('data-object');
-                const playerClass = gameState.player === 1 ? 'player-1' : 'player-2';
-                const playerName = gameState.player === 1 ? 'Detective A' : 'Detective B';
-                
-                let message = "";
-                let trigger = null;
-                let newItem = null;
-                let newItemName = "";
-                
-                // Stage 1 interactions
-                if (objectName === 'chest' && gameState.currentStage === 1) {
-                    if (gameState.inventory.includes('chest_key')) {
-                        message = "The rusty key clicks! The chest creaks open, revealing the ship's log.";
-                        trigger = 'chestOpened';
-                        newItem = 'ship_log';
-                        newItemName = "Captain's Log";
-                    } else {
-                        message = "The chest is locked. A strange emblem is etched near the keyhole.";
-                    }
-                } else if (objectName === 'palm' && gameState.currentStage === 1) {
-                    message = "Tucked behind the palm leaves, you find a rusty key tied with twine.";
-                    trigger = 'palmExamined';
-                    newItem = 'chest_key';
-                    newItemName = "Rusty Key";
-                }
-                
-                // Stage 2 interactions
-                else if (objectName === 'wheel' && gameState.currentStage === 2) {
-                    if (gameState.inventory.includes('tools')) {
-                        message = "You carefully apply the tools. The wheel's gears begin to turn again!";
-                        trigger = 'wheelFixed';
-                    } else {
-                        message = "The ship's wheel is rusted tight. You’ll need proper tools to fix it.";
-                    }
-                } else if (objectName === 'bloodStainedTable' && gameState.currentStage === 2) {
-                    message = "You dig where the markings meet. A pouch of old tools is buried beneath the sand.";
-                    trigger = 'toolsFound';
-                    newItem = 'tools';
-                    newItemName = "Repair Tools";
-                }
-                
-                // Stage 3 interactions
-                else if (objectName === 'log' && gameState.currentStage === 3) {
-                    message = "A note in the log reads: 'The lever can only be triggered by the island’s golden heart.'";
-                } else if (objectName === 'lever' && gameState.currentStage === 3) {
-                    if (gameState.inventory.includes('golden_artifact')) {
-                        message = "You insert the glowing artifact into the lever. A distant rumble echoes as the bridge lowers.";
-                        trigger = 'bridgeLowered';
-                    } else {
-                        message = "The lever is jammed. There’s a circular slot that looks like it needs a special item.";
-                    }
-                } else if (objectName === 'artifact' && gameState.currentStage === 3) {
-                    message = "The artifact is buried in a stone pedestal inside the chalkboard. You lift it carefully.";
-                    trigger = 'artifactFound';
-                    newItem = 'golden_artifact';
-                    newItemName = "Golden Artifact";
-                }
-                
-                addMessage(`${playerName}: [Examined ${objectName}] ${message}`, playerClass);
-                
-                // Add new item if found
-                if (newItem) {
-                    addInventoryItem(newItem, newItemName);
-                }
-                
-                // Update triggers if this action completed one
-                if (trigger) {
-                    gameState.stages[gameState.currentStage - 1].triggers[trigger] = true;
-                    checkStageCompletion();
-                }
-            });
-        });
-
-        // Hint system
-        hintBtn.addEventListener('click', showHint);
-        closeHint.addEventListener('click', () => {
-            hintPopup.style.display = 'none';
-        });
-
-        // Close hint when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === hintPopup) {
-                hintPopup.style.display = 'none';
-            }
-        });
-
-        // Add event listener for transitioning to the next room
-        document.getElementById('start-next-room').addEventListener('click', () => {
-            transitionToNextRoom();
-        });
-
-        // Trigger win animation on game completion
-        function onGameWin() {
-            playWinAnimation();
-        }
-    </script> -->
-</body>
+    <script src="../static/js/animations.js"></script>
+      <script src="../static/js/game.js"></script>
+  </body>
 </html>

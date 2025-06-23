@@ -786,6 +786,8 @@ window.addEventListener('DOMContentLoaded', () => {
                     showTransitionOverlay('Both detectives are finished, proceeding...');
                     setTimeout(() => {
                         hideTransitionOverlay();
+                        // Pause background music before showing final video
+                        pauseBgAudio();
                         // Show final video overlay (only for this player, not synced)
                         const finalVideoOverlay = document.getElementById('final-video-overlay');
                         finalVideoOverlay.style.display = 'flex';

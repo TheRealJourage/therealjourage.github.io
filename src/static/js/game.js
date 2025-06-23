@@ -335,19 +335,23 @@ window.addEventListener('DOMContentLoaded', () => {
     function handleRiddleClick(event) {
         const objectName = event.target.getAttribute('data-object');
         const riddle = gameState.riddleState[objectName];
+    
         if (!riddle || riddle.solved) {
             alert("Already solved or invalid.");
             return;
         }
-
+    
         showRiddleModal(riddle, function(answer) {
             if (!answer) return;
+    
             let correct = false;
+    
             if (objectName === 'bookshelf') {
-                // answer is an array of 9 values: [title1, title2, title3, color1, color2, color3, lang1, lang2, lang3]
-                const expectedTitles = ['alchemy','anatomy','astrology'];
-                const expectedColors = ['red','green','black'];
-                const expectedLangs = ['greek','arabic','latin'];
+                // Spezialfall bookshelf
+                const expectedTitles = ['alchemy', 'anatomy', 'astrology'];
+                const expectedColors = ['red', 'green', 'black'];
+                const expectedLangs = ['greek', 'arabic', 'latin'];
+    
                 correct = (
                     answer[0] === expectedTitles[0] &&
                     answer[1] === expectedTitles[1] &&
@@ -359,52 +363,29 @@ window.addEventListener('DOMContentLoaded', () => {
                     answer[7] === expectedLangs[1] &&
                     answer[8] === expectedLangs[2]
                 );
-            } else {
-                const cleaned = typeof answer === 'string' ? answer.trim().toLowerCase() : '';
+            } else if (objectName === 'chalkboard') {
+                // Spezialfall chalkboard
+                const cleaned = answer.trim().toLowerCase();
                 correct = cleaned === riddle.answer.toLowerCase() ||
-                    (riddle.alternateAnswer && cleaned === riddle.alternateAnswer.toLowerCase());
+                         (riddle.alternateAnswer && cleaned === riddle.alternateAnswer.toLowerCase());
+            } else {
+                // Standardfall
+                const cleaned = answer.trim().toLowerCase();
+                correct = cleaned === riddle.answer.toLowerCase() ||
+                         (riddle.alternateAnswer && cleaned === riddle.alternateAnswer.toLowerCase());
             }
-
+    
             if (correct) {
                 riddle.solved = true;
-                sendMessage(gameState.playerName + ' solved ' + objectName, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                sendMessage(`${gameState.playerName} solved ${objectName}`, gameState.player === 1 ? 'Player 1' : 'Player 2');
                 addCompletedChallenge(objectName);
-
-                if (objectName === 'finale') {
-                    alert(typeof answer === 'string' && answer.trim().toLowerCase() === "partner" ? "Congratulations! You solved the mystery!" : "A terrifying truth revealed...");
-                    window.location.href = "victory.html";
-                    return;
-                }
-
-                const player1Set1 = ['portrait', 'typewriter', 'cabinet'];
-                const player1Set2 = ['chest', 'bookshelf', 'candle'];
-                const player2Set1 = ['chalkboard', 'bloodStainedTable', 'hiddenFormula'];
-                const player2Set2 = ['safe', 'monitor', 'securityDoor'];
-
-                // Only show transition if this is the last unsolved riddle in the set
+    
+                // Optional: Transition prüfen
+                const player2Set1 = ['palm', 'chalkboard', 'bloodStainedTable'];
                 function isLastUnsolved(set) {
                     return set.filter(k => !gameState.riddleState[k].solved).length === 0 && set.includes(objectName);
                 }
-
-                if (gameState.player === 1 && isLastUnsolved(player1Set1)) {
-                    showTransitionOverlay();
-                    setTimeout(() => {
-                        hideTransitionOverlay();
-                        player1Scene.style.display = 'none';
-                        player1Scene2.style.display = 'block';
-                        sendMessage("Detective A completed Study Room.", "System");
-                    }, 1500);
-                }
-
-                if (gameState.player === 1 && isLastUnsolved(player1Set2)) {
-                    showTransitionOverlay();
-                    setTimeout(() => {
-                        hideTransitionOverlay();
-                        sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
-                        updateFinishState();
-                    }, 1500);
-                }
-
+    
                 if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
                     showTransitionOverlay();
                     setTimeout(() => {
@@ -414,18 +395,9 @@ window.addEventListener('DOMContentLoaded', () => {
                         sendMessage("Detective B completed Labo.", "System");
                     }, 1500);
                 }
-
-                if (gameState.player === 2 && isLastUnsolved(player2Set2)) {
-                    showTransitionOverlay();
-                    setTimeout(() => {
-                        hideTransitionOverlay();
-                        sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
-                        updateFinishState();
-                    }, 1500);
-                }
-
             } else {
-                sendMessage(gameState.playerName + ' attempted ' + objectName + ' but failed', gameState.player === 1 ? 'Player 1' : 'Player 2');
+                sendMessage(`${gameState.playerName} attempted ${objectName} but failed`, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                alert("Falsche Antwort. Versuche es erneut.");
             }
         });
     }

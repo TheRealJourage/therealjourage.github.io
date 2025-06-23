@@ -257,6 +257,8 @@ window.addEventListener('DOMContentLoaded', () => {
                             finalVideoOverlay.style.display = 'none';
                             // Show congrats overlay for 10 seconds
                             const congrats = document.getElementById('eternalis-congrats');
+                            congrats.querySelector('h1').textContent = 'Congratulations!';
+                            congrats.querySelector('p').textContent = 'You found Alistair Blackwood and his secret Eternalis';
                             congrats.style.display = 'flex';
                             setTimeout(() => {
                                 congrats.style.display = 'none';
@@ -690,5 +692,59 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.game-object[data-object="monitor"]').forEach(function(el) {
         el.textContent = 'Camera Feed';
     });
+
+    // After both ballroom riddles, show waiting screen for this player
+    function checkBallroomCompletion() {
+        // Only trigger if both ballroom riddles are solved for this player
+        if (
+            (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
+            (gameState.player === 2 && gameState.riddleState.fireplace.solved && gameState.riddleState.damaged_floor.solved)
+        ) {
+            // Hide ballroom
+            if (gameState.player === 1) document.getElementById('player1-ballroom').style.display = 'none';
+            if (gameState.player === 2) document.getElementById('player2-ballroom').style.display = 'none';
+            showTransitionOverlay('Waiting for the other detective to finish...');
+            // Mark this player as done in Firestore
+            db.collection("rooms").doc(gameState.roomId).set({
+                [gameState.player === 1 ? "player1BallroomDone" : "player2BallroomDone"]: true
+            }, { merge: true });
+            // Listen for both players to finish
+            db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
+                const data = doc.data();
+                if (data.player1BallroomDone && data.player2BallroomDone) {
+                    hideTransitionOverlay();
+                    // Show final video overlay
+                    const finalVideoOverlay = document.getElementById('final-video-overlay');
+                    finalVideoOverlay.style.display = 'flex';
+                    const finalVideo = document.getElementById('final-video');
+                    finalVideo.currentTime = 0;
+                    finalVideo.play();
+                    finalVideo.onended = () => {
+                        finalVideoOverlay.style.display = 'none';
+                        // Show congrats overlay for 10 seconds
+                        const congrats = document.getElementById('eternalis-congrats');
+                        congrats.querySelector('h1').textContent = 'Congratulations!';
+                        congrats.querySelector('p').textContent = 'You found Alistair Blackwood and his secret Eternalis';
+                        congrats.style.display = 'flex';
+                        setTimeout(() => {
+                            congrats.style.display = 'none';
+                            // Redirect to lobby
+                            lobby.style.display = 'flex';
+                            gameContainer.style.display = 'none';
+                        }, 10000);
+                    };
+                }
+            });
+        }
+    }
+
+    // Call checkBallroomCompletion after each ballroom riddle is solved
+    // In handleRiddleClick, after riddle.solved = true and addCompletedChallenge(objectName):
+    if (
+        (gameState.player === 1 && (objectName === 'portrait_ballroom' || objectName === 'chandelier')) ||
+        (gameState.player === 2 && (objectName === 'fireplace' || objectName === 'damaged_floor'))
+    ) {
+        checkBallroomCompletion();
+    }
 
 });

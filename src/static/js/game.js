@@ -242,17 +242,26 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }, 1600);
 
-        // If this player finished their ballroom, show the final ballroom for both
+        // Remove old ballroom-final and finalScene logic
+        // After solving both rooms, show player-specific ballroom
         setTimeout(() => {
-            const ballroomFinal = document.getElementById('ballroom-final');
             if (
-                (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
-                (gameState.player === 2 && gameState.riddleState.fireplace.solved && gameState.riddleState.damaged_floor.solved)
+                gameState.player === 1 &&
+                gameState.riddleState.chest.solved &&
+                gameState.riddleState.bookshelf.solved &&
+                gameState.riddleState.candle.solved
             ) {
-                document.getElementById('player1-ballroom').style.display = 'none';
-                document.getElementById('player2-ballroom').style.display = 'none';
-                if (ballroomFinal) ballroomFinal.style.display = 'flex';
-                if (finalScene) finalScene.style.display = 'none';
+                player1Scene2.style.display = 'none';
+                document.getElementById('player1-ballroom').style.display = 'block';
+            }
+            if (
+                gameState.player === 2 &&
+                gameState.riddleState.safe.solved &&
+                gameState.riddleState.monitor.solved &&
+                gameState.riddleState.securityDoor.solved
+            ) {
+                player2Scene2.style.display = 'none';
+                document.getElementById('player2-ballroom').style.display = 'block';
             }
         }, 1600);
 

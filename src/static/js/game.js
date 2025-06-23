@@ -433,23 +433,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 // Only show transition if this is the last unsolved riddle in the set
                 function isLastUnsolved(set) {
-                    return set.every(obj => gameState.riddleState[obj].solved);
+                    return set.filter(k => !gameState.riddleState[k].solved).length === 0 && set.includes(objectName);
                 }
 
                 // Player 1: Study -> Library
                 if (gameState.player === 1 && isLastUnsolved(player1Set1)) {
-                    player1Scene.style.display = 'none';
-                    player1Scene2.style.display = 'block';
-                    showTransitionOverlay('Proceeding to the Library...');
-                    setTimeout(hideTransitionOverlay, 1200);
+                    showTransitionOverlay();
+                    setTimeout(() => {
+                        hideTransitionOverlay();
+                        player1Scene.style.display = 'none';
+                        player1Scene2.style.display = 'block';
+                        sendMessage("Detective A completed Study Room.", "System");
+                    }, 1500);
                 }
-                // Player 2: Lab -> Security Room
-                if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
-                    player2Scene.style.display = 'none';
-                    player2Scene2.style.display = 'block';
-                    showTransitionOverlay('Proceeding to the Security Room...');
-                    setTimeout(hideTransitionOverlay, 1200);
-                }
+
+                // Player 1: Library -> Ballroom 1
                 if (gameState.player === 1 && isLastUnsolved(player1Set2)) {
                     showTransitionOverlay();
                     setTimeout(() => {
@@ -459,6 +457,19 @@ window.addEventListener('DOMContentLoaded', () => {
                         sendMessage("Detective A entered Ballroom 1.", "System");
                     }, 1500);
                 }
+
+                // Player 2: Lab -> Security Room
+                if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
+                    showTransitionOverlay();
+                    setTimeout(() => {
+                        hideTransitionOverlay();
+                        player2Scene.style.display = 'none';
+                        player2Scene2.style.display = 'block';
+                        sendMessage("Detective B completed Lab.", "System");
+                    }, 1500);
+                }
+
+                // Player 2: Security Room -> Ballroom 2
                 if (gameState.player === 2 && isLastUnsolved(player2Set2)) {
                     showTransitionOverlay();
                     setTimeout(() => {

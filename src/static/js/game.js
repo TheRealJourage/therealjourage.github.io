@@ -485,6 +485,14 @@ window.addEventListener('DOMContentLoaded', () => {
             } else {
                 sendMessage(gameState.playerName + ' attempted ' + objectName + ' but failed', gameState.player === 1 ? 'Player 1' : 'Player 2');
             }
+
+            // Trigger ballroom finale logic if a ballroom riddle was just solved
+            if (
+                (gameState.player === 1 && (objectName === 'portrait_ballroom' || objectName === 'chandelier')) ||
+                (gameState.player === 2 && (objectName === 'fireplace' || objectName === 'damaged_floor'))
+            ) {
+                checkBallroomCompletion();
+            }
         });
     }
 

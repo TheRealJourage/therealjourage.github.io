@@ -422,10 +422,25 @@
 </head>
 <body>
     <div id="lobby">
-        <!-- ...existing lobby code... -->
+        <h1>Blackwood Manor</h1>
+        <h2>2 Player Escape Adventure</h2>
+        <div style="margin-bottom: 24px;">
+            <input id="player1-name" class="room-input" type="text" placeholder="Detective A Name">
+            <button id="create-btn">Create Room</button>
+        </div>
+        <div style="margin-bottom: 24px;">
+            <input id="player2-name" class="room-input" type="text" placeholder="Detective B Name">
+            <input id="room-id" class="room-input" type="text" maxlength="4" placeholder="Room Code">
+            <button id="join-btn">Join Room</button>
+        </div>
+        <div style="margin-top: 16px;">
+            <span>Your Role: <span id="player-role">-</span></span><br>
+            <span>Room Code: <span id="room-code-display">----</span></span>
+        </div>
     </div>
     <div id="game-container" style="display:none; height:100%; grid-template-columns:1fr 300px; grid-template-rows:auto 1fr 200px;">
         <div id="header">
+            <button id="leave-btn" style="margin-right:16px;">Leave Game</button>
             <!-- ...existing header code... -->
         </div>
         <div id="game-view">

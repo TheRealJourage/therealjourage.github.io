@@ -548,56 +548,37 @@ window.addEventListener('DOMContentLoaded', () => {
         // Remove any skip button from previous intro
         const skipBtn = document.getElementById('skip-intro-btn');
         if (skipBtn && skipBtn.parentNode) skipBtn.parentNode.removeChild(skipBtn);
+        // Pause background music
+        pauseBgAudio();
     }
 
-    function showIntroVideoAndStartGame() {
-        waitingRoom.style.display = 'none';
-        introVideoOverlay.style.display = 'flex';
-        introVideo.currentTime = 0;
-        introVideo.play();
-        introVideo.onended = () => {
-            introVideoOverlay.style.display = 'none';
-            startGame();
-        };
-        // Always (re)create skip button
-        let skipBtn = document.getElementById('skip-intro-btn');
-        if (!skipBtn) {
-            skipBtn = document.createElement('button');
-            skipBtn.id = 'skip-intro-btn';
-            skipBtn.textContent = 'Skip Intro';
-            skipBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
-            skipBtn.onclick = () => {
-                introVideo.pause();
-                introVideoOverlay.style.display = 'none';
-                startGame();
-            };
-            introVideoOverlay.appendChild(skipBtn);
-        } else {
-            skipBtn.style.display = 'block';
-        }
-    }
-
+    // --- Only show intro video at true game start ---
     function listenForPlayers() {
         db.collection('rooms').doc(gameState.roomId).onSnapshot(doc => {
             const data = doc.data();
             if (!data) return;
             let aJoined = !!data.player1Joined;
             let bJoined = !!data.player2Joined;
-            if (gameState.player === 1) {
-                if (aJoined && !bJoined) {
-                    showWaitingRoom(true);
-                } else if (aJoined && bJoined) {
-                    waitingMessages.innerHTML = '<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>';
-                    setTimeout(() => {
-                        showIntroVideoAndStartGame();
-                    }, 1200);
-                }
-            } else if (gameState.player === 2) {
-                if (aJoined && bJoined) {
-                    showWaitingRoom(false);
-                    setTimeout(() => {
-                        showIntroVideoAndStartGame();
-                    }, 1200);
+            // Only show intro video if game hasn't started yet
+            if (!data.gameStarted) {
+                if (gameState.player === 1) {
+                    if (aJoined && !bJoined) {
+                        showWaitingRoom(true);
+                    } else if (aJoined && bJoined) {
+                        waitingMessages.innerHTML = '<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>';
+                        setTimeout(() => {
+                            // Set gameStarted flag in Firestore
+                            db.collection('rooms').doc(gameState.roomId).set({ gameStarted: true }, { merge: true });
+                            showIntroVideoAndStartGame();
+                        }, 1200);
+                    }
+                } else if (gameState.player === 2) {
+                    if (aJoined && bJoined) {
+                        showWaitingRoom(false);
+                        setTimeout(() => {
+                            showIntroVideoAndStartGame();
+                        }, 1200);
+                    }
                 }
             }
         });

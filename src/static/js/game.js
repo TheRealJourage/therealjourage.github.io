@@ -133,15 +133,77 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleRiddleClick(event) {
-        const objectName = event.target.getAttribute('data-object');
-        const riddle = gameState.riddleState[objectName];
-        if (!riddle || riddle.solved) {
-            alert("Already solved or invalid.");
-            return;
-        }
-
-        const answer = prompt(riddle.question);
-        if (!answer) return;
+            const objectName = event.target.getAttribute('data-object');
+            const riddle = gameState.riddleState[objectName];
+            if (!riddle || riddle.solved) {
+                alert("Already solved or invalid.");
+                return;
+            }
+        
+            // Speziell für chalkboard: Kein prompt, sondern eigenes Overlay
+            if (objectName === 'chalkboard') {
+                const overlay = document.getElementById('custom-chalkboard-overlay');
+                const inputField = document.getElementById('chalkboard-answer-input');
+                const okBtn = document.getElementById('chalkboard-ok-btn');
+                const cancelBtn = document.getElementById('chalkboard-cancel-btn');
+        
+                // Reset Input
+                inputField.value = '';
+        
+                // Overlay anzeigen
+                overlay.style.display = 'flex';
+        
+                // OK-Button Event
+                okBtn.onclick = () => {
+                    const answer = inputField.value.trim();
+                    if (!answer) {
+                        alert("Bitte gib eine Antwort ein.");
+                        return;
+                    }
+        
+                    const cleaned = answer.toLowerCase();
+                    const correct = cleaned === riddle.answer.toLowerCase() ||
+                                    (riddle.alternateAnswer && cleaned === riddle.alternateAnswer.toLowerCase());
+        
+                    overlay.style.display = 'none'; // Overlay ausblenden
+        
+                    if (correct) {
+                        riddle.solved = true;
+                        sendMessage(`${gameState.playerName} solved ${objectName}`, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                        addCompletedChallenge(objectName);
+        
+                        // Optional: Transition oder andere Logik hier
+                        const player2Set1 = ['chalkboard', 'bloodStainedTable'];
+                        function isLastUnsolved(set) {
+                            return set.filter(k => !gameState.riddleState[k].solved).length === 0 && set.includes(objectName);
+                        }
+                        if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
+                            showTransitionOverlay();
+                            setTimeout(() => {
+                                hideTransitionOverlay();
+                                player2Scene.style.display = 'none';
+                                player2Scene2.style.display = 'block';
+                                sendMessage("Detective B completed Labo.", "System");
+                            }, 1500);
+                        }
+                    } else {
+                        sendMessage(`${gameState.playerName} attempted ${objectName} but failed`, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                        alert("Falsche Antwort. Versuche es erneut.");
+                    }
+                };
+        
+                // Cancel-Button Event
+                cancelBtn.onclick = () => {
+                    overlay.style.display = 'none';
+                };
+        
+                return; // Verhindere weiteren Code (kein prompt!)
+            }
+        
+            // Für alle anderen Rätsel bleibt alles wie bisher
+            const answer = prompt(riddle.question);
+            if (!answer) return;
+        
         const cleaned = answer.trim().toLowerCase();
 
         const correct = cleaned === riddle.answer.toLowerCase() ||

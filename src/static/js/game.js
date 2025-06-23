@@ -276,7 +276,7 @@ window.addEventListener('DOMContentLoaded', () => {
         li.textContent = '\u2705 ' + objectName + ' Challenge Fixed';
         challengeList.appendChild(li);
         const obj = document.querySelector('.game-object[data-object="' + objectName + '"]');
-        if (obj) obj.classList.add("solved-object");
+        if obj) obj.classList.add("solved-object");
     }
 
     function showRiddleModal(riddle, onSubmit) {
@@ -433,19 +433,23 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 // Only show transition if this is the last unsolved riddle in the set
                 function isLastUnsolved(set) {
-                    return set.filter(k => !gameState.riddleState[k].solved).length === 0 && set.includes(objectName);
+                    return set.every(obj => gameState.riddleState[obj].solved);
                 }
 
+                // Player 1: Study -> Library
                 if (gameState.player === 1 && isLastUnsolved(player1Set1)) {
-                    showTransitionOverlay();
-                    setTimeout(() => {
-                        hideTransitionOverlay();
-                        player1Scene.style.display = 'none';
-                        player1Scene2.style.display = 'block';
-                        sendMessage("Detective A completed Study Room.", "System");
-                    }, 1500);
+                    player1Scene.style.display = 'none';
+                    player1Scene2.style.display = 'block';
+                    showTransitionOverlay('Proceeding to the Library...');
+                    setTimeout(hideTransitionOverlay, 1200);
                 }
-
+                // Player 2: Lab -> Security Room
+                if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
+                    player2Scene.style.display = 'none';
+                    player2Scene2.style.display = 'block';
+                    showTransitionOverlay('Proceeding to the Security Room...');
+                    setTimeout(hideTransitionOverlay, 1200);
+                }
                 if (gameState.player === 1 && isLastUnsolved(player1Set2)) {
                     showTransitionOverlay();
                     setTimeout(() => {

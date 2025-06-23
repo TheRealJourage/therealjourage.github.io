@@ -534,7 +534,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Background Audio Setup ---
-    let bgAudio = new Audio('../static/audios/Horror_Background.mp3');
+    let bgAudio = new Audio('src/static/audios/Horror_Background.mp3');
     bgAudio.loop = true;
     bgAudio.volume = 0.5;
     let audioEnabled = true;

@@ -419,6 +419,13 @@
     font-size: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
+
+    <!-- Ballroom Final Room Placeholder -->
+    <div id="ballroom-final" class="scene" style="display:none; width:100%; height:100%; background:#222; align-items:center; justify-content:center; flex-direction:column; position:absolute; top:0; left:0; z-index:10;">
+      <h1 style="color:#FFD700; margin-top:120px;">Ballroom</h1>
+      <p style="color:#fff; font-size:1.5rem;">Both detectives have arrived at the grand ballroom.<br>Final puzzles and secrets await here!</p>
+      <div style="width:100%;height:300px;background:#444;opacity:0.3;margin:32px 0 0 0;"></div>
+    </div>
     </style>
 </head>
 <body>
@@ -448,9 +455,13 @@
                     <div class="progress" id="game-progress"></div>
                 </div>
             </div>
-            <div>
-                <button id="hint-btn">Hint</button>
-                <button id="leave-btn">Leave Game</button>
+            <div style="display:flex; align-items:center; gap:16px; position:relative; min-width:320px; justify-content:flex-end;">
+                <span style="display:flex; align-items:center; gap:8px; margin-right:10px;">
+                  <label for="volume" style="color:#fff;">Volume:</label>
+                  <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+                  <button id="mute-toggle">Mute</button>
+                </span>
+                <button id="leave-btn" style="position:static;">Leave Game</button>
             </div>
         </div>
 
@@ -458,9 +469,9 @@
             <!-- Player 1 sees the study room -->
             <div id="player1-scene" class="scene" style="display: none;">
                 <img src="../static/images/study_room.png" alt="Study Room" class="scene-bg">
-                <div class="game-object" style="top: 270px; left: 320px;" data-object="lamp">Lamp</div>
-                <div class="game-object" style="top: 375px; left: 230px;" data-object="typewriter">Typewriter</div>
                 <div class="game-object" style="top: 150px; left: 800px;" data-object="portrait">Portrait</div>
+                <div class="game-object" style="top: 375px; left: 230px;" data-object="typewriter">Typewriter</div>
+                <div class="game-object" style="top: 270px; left: 320px;" data-object="cabinet">Cabinet</div>
             </div>
 
             <!-- Player 1 second scene: hidden library -->
@@ -469,6 +480,8 @@
                 <div class="game-object" style="top: 200px; left: 300px;" data-object="chest">Chest</div>
                 <div class="game-object" style="top: 350px; left: 600px;" data-object="bookshelf">Bookshelf</div>
                 <div class="game-object" style="top: 220px; left: 800px;" data-object="candle">Candle</div>
+                <div class="game-object" style="top: 350px; left: 600px;" data-object="bookshelf">Bookshelf</div>
+                <div class="game-object" style="top: 200px; left: 300px;" data-object="chest">Chest</div>
             </div>
 
             <!-- Player 2 -->
@@ -476,12 +489,18 @@
     <img src="../static/images/abonded_lab.png" alt="Laboratory" class="scene-bg">
     <div class="game-object" style="top: 350px; left: 450px;" data-object="bloodStainedTable">Blood-stained Table</div>
     <div class="game-object" style="top: 200px; left: 650px;" data-object="chalkboard">Chalkboard</div>
+    <div class="game-object" style="top: 350px; left: 450px;" data-object="bloodStainedTable">Blood-stained Table</div>
+    <div class="game-object" style="top: 120px; left: 300px;" data-object="hiddenFormula">Hidden Formula</div>
 </div>
 
 <div id="player2-scene-2" class="scene" style="display: none;">
     <img src="../static/images/securityRoom.png" alt="Securety Room" class="scene-bg">
-    <div class="game-object" style="top: 400px; left: 200px;" data-object="bridge">Wooden Bridge</div>
-    <div class="game-object" style="top: 300px; left: 550px;" data-object="artifact">Golden Artifact</div>
+    <div class="game-object" style="top: 400px; left: 200px;" data-object="safe">Safe</div>
+    <div class="game-object" style="top: 300px; left: 550px;" data-object="monitor">Monitor</div>
+    <div class="game-object" style="top: 100px; left: 700px;" data-object="securityDoor">Security Door</div>
+    <div class="game-object" style="top: 400px; left: 200px;" data-object="safe">Safe</div>
+    <div class="game-object" style="top: 300px; left: 550px;" data-object="monitor">Monitor</div>
+    <div class="game-object" style="top: 100px; left: 700px;" data-object="securityDoor">Security Door</div>
 </div>
 
 <div id="final-scene" class="scene" style="display: none;">
@@ -551,12 +570,6 @@
         <h1>Welcome to the Next Room</h1>
         <p>Continue your adventure and solve the next set of puzzles!</p>
         <button id="start-next-room">Start</button>
-    </div>
-
-    <div id="audio-controls">
-        <label for="volume">Volume:</label>
-        <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
-        <button id="mute-toggle">Mute</button>
     </div>
 
     <!-- Waiting Room Screen -->

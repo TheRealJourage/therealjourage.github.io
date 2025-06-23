@@ -367,7 +367,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if (correct) {
                 riddle.solved = true;
-                sendMessage(gameState.playerName + ' solved ' + objectName, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                sendMessage(gameState.playerName + ' solved ' + objectName+ ': ' + riddle.answer, gameState.player === 1 ? 'Player 1' : 'Player 2');
                 addCompletedChallenge(objectName);
 
                 if (objectName === 'finale') {
@@ -447,7 +447,7 @@ window.addEventListener('DOMContentLoaded', () => {
         introVideo.currentTime = 0;
         introVideo.play();
         // Only allow proceeding after video ends
-        introVideo.onended = () => {
+        rVideo.onended = () => {
             introVideoOverlay.style.display = 'none';
             startGame();
         };

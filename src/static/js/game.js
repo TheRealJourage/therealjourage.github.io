@@ -253,19 +253,27 @@ window.addEventListener('DOMContentLoaded', () => {
                         const finalVideo = document.getElementById('final-video');
                         finalVideo.currentTime = 0;
                         finalVideo.play();
+                        // Add skip button for final video (per player)
+                        let skipFinalBtn = document.getElementById('skip-final-btn');
+                        if (!skipFinalBtn) {
+                            skipFinalBtn = document.createElement('button');
+                            skipFinalBtn.id = 'skip-final-btn';
+                            skipFinalBtn.textContent = 'Skip';
+                            skipFinalBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
+                            skipFinalBtn.onclick = () => {
+                                finalVideo.pause();
+                                finalVideoOverlay.style.display = 'none';
+                                showCongratsOverlay();
+                            };
+                            finalVideoOverlay.appendChild(skipFinalBtn);
+                        } else {
+                            skipFinalBtn.style.display = 'block';
+                        }
+                        // Only show congrats after video finishes (remove controls to prevent skipping)
+                        finalVideo.controls = false;
                         finalVideo.onended = () => {
                             finalVideoOverlay.style.display = 'none';
-                            // Show congrats overlay for 10 seconds
-                            const congrats = document.getElementById('eternalis-congrats');
-                            congrats.querySelector('h1').textContent = 'Congratulations!';
-                            congrats.querySelector('p').textContent = 'You found Alistair Blackwood and his secret Eternalis';
-                            congrats.style.display = 'flex';
-                            setTimeout(() => {
-                                congrats.style.display = 'none';
-                                // Redirect to lobby
-                                lobby.style.display = 'flex';
-                                gameContainer.style.display = 'none';
-                            }, 10000);
+                            showCongratsOverlay();
                         };
                     }
                 });
@@ -507,19 +515,53 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- GAME RESET LOGIC ---
+    function resetGameStateAndUI() {
+        // Hide all overlays
+        document.getElementById('eternalis-congrats').style.display = 'none';
+        document.getElementById('final-video-overlay').style.display = 'none';
+        document.getElementById('intro-video-overlay').style.display = 'none';
+        document.getElementById('waiting-room').style.display = 'none';
+        document.getElementById('transition-overlay').style.display = 'none';
+        // Hide all scenes
+        document.querySelectorAll('.scene').forEach(scene => scene.style.display = 'none');
+        // Hide game container, show lobby
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('lobby').style.display = 'flex';
+        // Show both create/join sections
+        document.getElementById('create-game').style.display = 'block';
+        document.getElementById('join-game').style.display = 'block';
+        // Reset header info
+        document.getElementById('player-role').textContent = '';
+        document.getElementById('room-code-display').textContent = '';
+        // Reset inventory, chat, progress, hints, riddles, etc.
+        document.getElementById('inventory-items').innerHTML = '';
+        document.getElementById('messages').innerHTML = '';
+        document.getElementById('game-progress').style.width = '0%';
+        document.getElementById('hint-text').textContent = '';
+        document.getElementById('challenge-list').innerHTML = '';
+        // Reset gameState object (keep only persistent properties if needed)
+        if (window.gameState) {
+            window.gameState = {};
+        }
+        // Remove any skip button from previous intro
+        const skipBtn = document.getElementById('skip-intro-btn');
+        if (skipBtn && skipBtn.parentNode) skipBtn.parentNode.removeChild(skipBtn);
+    }
+
     function showIntroVideoAndStartGame() {
         waitingRoom.style.display = 'none';
         introVideoOverlay.style.display = 'flex';
         introVideo.currentTime = 0;
         introVideo.play();
-        // Only allow proceeding after video ends
         introVideo.onended = () => {
             introVideoOverlay.style.display = 'none';
             startGame();
         };
-        // Optional: allow skipping after a few seconds
-        if (!document.getElementById('skip-intro-btn')) {
-            const skipBtn = document.createElement('button');
+        // Always (re)create skip button
+        let skipBtn = document.getElementById('skip-intro-btn');
+        if (!skipBtn) {
+            skipBtn = document.createElement('button');
             skipBtn.id = 'skip-intro-btn';
             skipBtn.textContent = 'Skip Intro';
             skipBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
@@ -529,6 +571,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 startGame();
             };
             introVideoOverlay.appendChild(skipBtn);
+        } else {
+            skipBtn.style.display = 'block';
         }
     }
 
@@ -708,9 +752,15 @@ window.addEventListener('DOMContentLoaded', () => {
             (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
             (gameState.player === 2 && gameState.riddleState.fireplace.solved && gameState.riddleState.damaged_floor.solved)
         ) {
-            // Hide ballroom
-            if (gameState.player === 1) document.getElementById('player1-ballroom').style.display = 'none';
-            if (gameState.player === 2) document.getElementById('player2-ballroom').style.display = 'none';
+            // Hide only this player's ballroom
+            if (gameState.player === 1) {
+                const ballroom1 = document.getElementById('player1-ballroom');
+                if (ballroom1) ballroom1.style.display = 'none';
+            }
+            if (gameState.player === 2) {
+                const ballroom2 = document.getElementById('player2-ballroom');
+                if (ballroom2) ballroom2.style.display = 'none';
+            }
             showTransitionOverlay('Waiting for the other detective to finish...');
             // Mark this player as done in Firestore
             db.collection("rooms").doc(gameState.roomId).set({
@@ -720,39 +770,56 @@ window.addEventListener('DOMContentLoaded', () => {
             db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
                 const data = doc.data();
                 if (data.player1BallroomDone && data.player2BallroomDone) {
-                    hideTransitionOverlay();
-                    // Show final video overlay
-                    const finalVideoOverlay = document.getElementById('final-video-overlay');
-                    finalVideoOverlay.style.display = 'flex';
-                    const finalVideo = document.getElementById('final-video');
-                    finalVideo.currentTime = 0;
-                    finalVideo.play();
-                    finalVideo.onended = () => {
-                        finalVideoOverlay.style.display = 'none';
-                        // Show congrats overlay for 10 seconds
-                        const congrats = document.getElementById('eternalis-congrats');
-                        congrats.querySelector('h1').textContent = 'Congratulations!';
-                        congrats.querySelector('p').textContent = 'You found Alistair Blackwood and his secret Eternalis';
-                        congrats.style.display = 'flex';
-                        setTimeout(() => {
-                            congrats.style.display = 'none';
-                            // Redirect to lobby
-                            lobby.style.display = 'flex';
-                            gameContainer.style.display = 'none';
-                        }, 10000);
-                    };
+                    // Both finished: update overlay for both, then proceed after a short delay
+                    showTransitionOverlay('Both detectives are finished, proceeding...');
+                    setTimeout(() => {
+                        hideTransitionOverlay();
+                        // Show final video overlay
+                        const finalVideoOverlay = document.getElementById('final-video-overlay');
+                        finalVideoOverlay.style.display = 'flex';
+                        const finalVideo = document.getElementById('final-video');
+                        finalVideo.currentTime = 0;
+                        finalVideo.play();
+                        // Add skip button for final video (per player)
+                        let skipFinalBtn = document.getElementById('skip-final-btn');
+                        if (!skipFinalBtn) {
+                            skipFinalBtn = document.createElement('button');
+                            skipFinalBtn.id = 'skip-final-btn';
+                            skipFinalBtn.textContent = 'Skip';
+                            skipFinalBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
+                            skipFinalBtn.onclick = () => {
+                                finalVideo.pause();
+                                finalVideoOverlay.style.display = 'none';
+                                showCongratsOverlay();
+                            };
+                            finalVideoOverlay.appendChild(skipFinalBtn);
+                        } else {
+                            skipFinalBtn.style.display = 'block';
+                        }
+                        // Only show congrats after video finishes (remove controls to prevent skipping)
+                        finalVideo.controls = false;
+                        finalVideo.onended = () => {
+                            finalVideoOverlay.style.display = 'none';
+                            showCongratsOverlay();
+                        };
+                    }, 2000); // 2 seconds for the new relay
                 }
             });
         }
     }
 
-    // Call checkBallroomCompletion after each ballroom riddle is solved
-    // In handleRiddleClick, after riddle.solved = true and addCompletedChallenge(objectName):
-    if (
-        (gameState.player === 1 && (objectName === 'portrait_ballroom' || objectName === 'chandelier')) ||
-        (gameState.player === 2 && (objectName === 'fireplace' || objectName === 'damaged_floor'))
-    ) {
-        checkBallroomCompletion();
+    function showCongratsOverlay() {
+        // Show congrats overlay for 10 seconds
+        const congrats = document.getElementById('eternalis-congrats');
+        congrats.querySelector('h1').textContent = 'Congratulations!';
+        congrats.querySelector('p').textContent = 'You found Alistair Blackwood and his secret Eternalis';
+        congrats.style.display = 'flex';
+        setTimeout(() => {
+            congrats.style.display = 'none';
+            resetGameStateAndUI();
+            const finalVideo = document.getElementById('final-video');
+            finalVideo.controls = true;
+        }, 10000);
     }
-
+    // ...existing code...
 });

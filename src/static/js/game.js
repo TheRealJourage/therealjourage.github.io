@@ -47,7 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
             candle: {
                 question: "\"I sleep in silence, slender and dry,\nBut strike me once, and flames will fly.\nBorn from friction, short I live—\nA spark, a flare, is all I give.\nWhat am I?\"",
                 answer: "match",
-                hint: "A tool for lighting the candle. You’re looking for a word, number of letters matching the answer for  Detective B's Atom Count Formula riddle answer - 1 letter.",
+                hint: "A tool for lighting the candle. You’re looking for a word, starts with M and number of letters matching the answer for  Detective B's Atom Count Formula riddle answer - 1 letter.",
                 solved: false
             },
             bookshelf: {
@@ -70,7 +70,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 solved: false
             },
             bloodStainedTable: {
-                question: "Three vials lie shattered. One labeled ‘Cu’, one ‘Au’, one ‘Ag’. Which has the highest value?",
+                question: "Three vials lie shattered. One labeled ‘Cu’, one ‘Au’, one ‘Ag’. Which has the highest value? Give the real name, not the symbol",
                 answer: "gold",
                 hint: "Four-letter word. A metal fit for king's crown.",
                 solved: false
@@ -85,7 +85,7 @@ window.addEventListener('DOMContentLoaded', () => {
             safe: {
                 question: "The safe code lies in the past — passphrase together what your partner revealed in Portrait and Typewriter.",
                 answer: "37",
-                hint: "Combine the answer of potrait and the answer of typewriter into a single passphrase in ascending order. do not sum them. just put together next to each other. Check the chat for the asnwers.",
+                hint: "Combine the answer of potrait and the answer of typewriter in Drective A's First room into a single passphrase in ascending order. do not sum them. just put together next to each other. Check the chat for the asnwers.",
                 solved: false
             },
             monitor: {
@@ -117,7 +117,7 @@ window.addEventListener('DOMContentLoaded', () => {
             Wallinscription: {
                 question: "I twirl without feet, glide without hands. I dance with the guests as the music commands. No face do I have, yet many wear my guise, In this enchanted room where reflection never lies. Find me where echoes of waltzes remain and I shall unlock what the ballroom has chained.",
                 answer: "mirror",
-                hint: "Reflect a bit",
+                hint: "6 letter word starts with M, So reflect a bit",
                 solved: false
             },
             Listen: {

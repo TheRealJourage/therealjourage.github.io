@@ -527,7 +527,7 @@ window.addEventListener('DOMContentLoaded', () => {
             // Trigger ballroom finale logic if a ballroom riddle was just solved
             if (
                 (gameState.player === 1 && (objectName === 'portrait_ballroom' || objectName === 'chandelier')) ||
-                (gameState.player === 2 && (objectName === 'fireplace' || objectName === 'damaged_floor'))
+                (gameState.player === 2 && (objectName === 'Wallinscription' || objectName === 'Listen'))
             ) {
                 checkBallroomCompletion();
             }

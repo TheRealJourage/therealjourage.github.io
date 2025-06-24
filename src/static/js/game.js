@@ -191,16 +191,19 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (change.type === "added") {
                         const data = change.doc.data();
                         let className = 'message';
+                        let senderLabel = data.sender;
                         if (data.sender === 'System') {
                             className += ' system';
                         } else if (data.sender === 'Player 1') {
                             className += ' player-1';
+                            senderLabel = 'Detective A';
                         } else if (data.sender === 'Player 2') {
                             className += ' player-2';
+                            senderLabel = 'Detective B';
                         }
                         const div = document.createElement('div');
                         div.className = className;
-                        div.textContent = data.sender + ': ' + data.text;
+                        div.textContent = senderLabel + ': ' + data.text;
                         messages.appendChild(div);
                         messages.scrollTop = messages.scrollHeight;
                     }

@@ -15,13 +15,14 @@ window.addEventListener('DOMContentLoaded', () => {
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
+// unnecessary comment 
     const gameState = {
         player: null,
         roomId: null,
         playerName: null,
         partnerName: null,
         finished: false,
+        started: false, // <-- add this flag
         riddleState: {
             // Study (Detective A - Room 1)
             portrait: {
@@ -98,6 +99,32 @@ window.addEventListener('DOMContentLoaded', () => {
                 answer: "password",
                 hint: "You don’t carry this in your pocket, but you enter this to gain access. Often changed, sometimes forgotten. Starts with letter P.",
                 solved: false
+            },
+            // Ballroom_1 (Detective A - Room 3)
+            portrait_ballroom: {
+                question: "The portrait shows Alistair Blackwood. What number summ is hidden in the curtain folds?",
+                answer: "78",
+                hint: "Add them together and think about witch numbers you see",
+                solved: false
+            },
+            chandelier: {
+                question: "How many light do the chandeliers have?",
+                answer: "19",
+                hint: "Remember there are 2 chandeliers, since both players are in the same room",
+                solved: false
+            },
+            // Ballroom_2 (Detective B - Room 3)
+            Wallinscription: {
+                question: "I twirl without feet, glide without hands. I dance with the guests as the music commands. No face do I have, yet many wear my guise, In this enchanted room where reflection never lies. Find me where echoes of waltzes remain and I shall unlock what the ballroom has chained.",
+                answer: "mirror",
+                hint: "Reflect a bit",
+                solved: false
+            },
+            Listen: {
+                question: "What is the awnser to everything? 0 ----- , 1 .---- , 2 ..--- , 3 ...-- , 4 ....- , 5 ..... , 6 -.... , 7 --... , 8 ---.. , 9 ----.",
+                answer: "42",
+                hint: "Listen closely to the background music",
+                solved: false
             }
         }
     };
@@ -164,16 +191,19 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (change.type === "added") {
                         const data = change.doc.data();
                         let className = 'message';
+                        let senderLabel = data.sender;
                         if (data.sender === 'System') {
                             className += ' system';
                         } else if (data.sender === 'Player 1') {
                             className += ' player-1';
+                            senderLabel = 'Detective A';
                         } else if (data.sender === 'Player 2') {
                             className += ' player-2';
+                            senderLabel = 'Detective B';
                         }
                         const div = document.createElement('div');
                         div.className = className;
-                        div.textContent = data.sender + ': ' + data.text;
+                        div.textContent = senderLabel + ': ' + data.text;
                         messages.appendChild(div);
                         messages.scrollTop = messages.scrollHeight;
                     }
@@ -186,37 +216,75 @@ window.addEventListener('DOMContentLoaded', () => {
             [gameState.player === 1 ? "player1Finished" : "player2Finished"]: true
         }, { merge: true });
 
-        // Always check if both finished and show ballroom for this player if so
-        db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
-            const data = doc.data();
-            if (data.player1Finished && data.player2Finished) {
-                const div = document.createElement('div');
-                div.className = "message system";
-                div.textContent = "System: Both players are ready! Proceeding to the Ballroom...";
-                messages.appendChild(div);
-                messages.scrollTop = messages.scrollHeight;
-                showTransitionOverlay();
-                setTimeout(() => {
-                    hideTransitionOverlay();
-                    player1Scene2.style.display = "none";
-                    player2Scene2.style.display = "none";
-                    document.getElementById('ballroom-final').style.display = 'flex';
-                }, 1500);
-            }
-        });
-
-        // If this player finished both rooms, show ballroom for them (even if partner hasn't finished yet)
+        // After solving both rooms, show player-specific ballroom as the third room
         setTimeout(() => {
-            const ballroom = document.getElementById('ballroom-final');
             if (
-                (gameState.player === 1 && gameState.riddleState.chest.solved && gameState.riddleState.bookshelf.solved && gameState.riddleState.candle.solved) ||
-                (gameState.player === 2 && gameState.riddleState.safe.solved && gameState.riddleState.monitor.solved && gameState.riddleState.securityDoor.solved)
+                gameState.player === 1 &&
+                gameState.riddleState.chest.solved &&
+                gameState.riddleState.bookshelf.solved &&
+                gameState.riddleState.candle.solved
             ) {
-                player1Scene2.style.display = "none";
-                player2Scene2.style.display = "none";
-                if (ballroom) ballroom.style.display = 'flex';
-                // Hide finalScene if it was shown by old logic
-                if (finalScene) finalScene.style.display = 'none';
+                player1Scene2.style.display = 'none';
+                document.getElementById('player1-ballroom').style.display = 'block';
+            }
+            if (
+                gameState.player === 2 &&
+                gameState.riddleState.safe.solved &&
+                gameState.riddleState.monitor.solved &&
+                gameState.riddleState.securityDoor.solved
+            ) {
+                player2Scene2.style.display = 'none';
+                document.getElementById('player2-ballroom').style.display = 'block';
+            }
+        }, 1600);
+
+        // After solving both ballroom riddles, show waiting screen for this player
+        setTimeout(() => {
+            if (
+                (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
+                (gameState.player === 2 && gameState.riddleState.Wallinscription.solved && gameState.riddleState.Listen.solved)
+            ) {
+                document.getElementById('player1-ballroom').style.display = 'none';
+                document.getElementById('player2-ballroom').style.display = 'none';
+                showTransitionOverlay('Waiting for the other detective to finish...');
+                db.collection("rooms").doc(gameState.roomId).set({
+                    [gameState.player === 1 ? "player1BallroomDone" : "player2BallroomDone"]: true
+                }, { merge: true });
+                // Listen for both players to finish
+                db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
+                    const data = doc.data();
+                    if (data.player1BallroomDone && data.player2BallroomDone) {
+                        hideTransitionOverlay();
+                        // Show final video overlay
+                        const finalVideoOverlay = document.getElementById('final-video-overlay');
+                        finalVideoOverlay.style.display = 'flex';
+                        const finalVideo = document.getElementById('final-video');
+                        finalVideo.currentTime = 0;
+                        finalVideo.play();
+                        // Add skip button for final video (per player)
+                        let skipFinalBtn = document.getElementById('skip-final-btn');
+                        if (!skipFinalBtn) {
+                            skipFinalBtn = document.createElement('button');
+                            skipFinalBtn.id = 'skip-final-btn';
+                            skipFinalBtn.textContent = 'Skip';
+                            skipFinalBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
+                            skipFinalBtn.onclick = () => {
+                                finalVideo.pause();
+                                finalVideoOverlay.style.display = 'none';
+                                showCongratsOverlay();
+                            };
+                            finalVideoOverlay.appendChild(skipFinalBtn);
+                        } else {
+                            skipFinalBtn.style.display = 'block';
+                        }
+                        // Only show congrats after video finishes (remove controls to prevent skipping)
+                        finalVideo.controls = false;
+                        finalVideo.onended = () => {
+                            finalVideoOverlay.style.display = 'none';
+                            showCongratsOverlay();
+                        };
+                    }
+                });
             }
         }, 1600);
     }
@@ -233,6 +301,13 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('riddle-question').textContent = riddle.question;
         document.getElementById('riddle-hint').style.display = 'none';
         document.getElementById('riddle-hint').textContent = riddle.hint;
+        // Always clear the answer input for a new riddle
+        const riddleAnswerInput = document.getElementById('riddle-answer');
+        if (riddleAnswerInput) riddleAnswerInput.value = '';
+        // Remove any previous event listener to avoid duplicate submits
+        if (riddleAnswerInput) {
+            riddleAnswerInput.onkeydown = null;
+        }
         // Custom input for bookshelf puzzle
         if (riddle === gameState.riddleState.bookshelf) {
             // Make modal taller and wider for bookshelf
@@ -277,8 +352,17 @@ window.addEventListener('DOMContentLoaded', () => {
                 '<input id="monitor-answer" type="text" maxlength="2" style="width:40px; padding:6px; font-size:1.2rem; text-align:center; border-radius:6px; border:none; margin:0 6px;">' +
                 '<span style="font-size:1.2rem;"> AM</span>';
             modalContent.insertBefore(monitorDiv, document.getElementById('riddle-hint-btn').parentNode);
-            // Always set submit button label to 'Submit' for all riddles
-            document.getElementById('riddle-submit-btn').textContent = 'Submit';
+            // Add Enter key support for monitor answer
+            setTimeout(() => {
+                const monitorInput = document.getElementById('monitor-answer');
+                if (monitorInput) {
+                    monitorInput.onkeydown = function(e) {
+                        if (e.key === 'Enter') {
+                            document.getElementById('riddle-submit-btn').click();
+                        }
+                    };
+                }
+            }, 0);
         } else {
             riddleModal.style.width = '520px';
             riddleModal.style.minHeight = '';
@@ -289,8 +373,14 @@ window.addEventListener('DOMContentLoaded', () => {
             // Remove monitor input if present
             const oldMonitor = document.getElementById('monitor-answer-box');
             if (oldMonitor) oldMonitor.remove();
-            // Always set submit button label to 'Submit' for all riddles
-            document.getElementById('riddle-submit-btn').textContent = 'Submit';
+            // Add Enter key support for riddle answer
+            if (riddleAnswerInput) {
+                riddleAnswerInput.onkeydown = function(e) {
+                    if (e.key === 'Enter') {
+                        document.getElementById('riddle-submit-btn').click();
+                    }
+                };
+            }
         }
         riddleModal.style.display = 'flex';
         if (riddle === gameState.riddleState.bookshelf) {
@@ -367,7 +457,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if (correct) {
                 riddle.solved = true;
-                sendMessage(gameState.playerName + ' solved ' + objectName, gameState.player === 1 ? 'Player 1' : 'Player 2');
+                sendMessage(gameState.playerName + ' solved ' + objectName+ ': ' + riddle.answer, gameState.player === 1 ? 'Player 1' : 'Player 2');
                 addCompletedChallenge(objectName);
 
                 if (objectName === 'finale') {
@@ -386,6 +476,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     return set.filter(k => !gameState.riddleState[k].solved).length === 0 && set.includes(objectName);
                 }
 
+                // Player 1: Study -> Library
                 if (gameState.player === 1 && isLastUnsolved(player1Set1)) {
                     showTransitionOverlay();
                     setTimeout(() => {
@@ -396,36 +487,49 @@ window.addEventListener('DOMContentLoaded', () => {
                     }, 1500);
                 }
 
+                // Player 1: Library -> Ballroom 1
                 if (gameState.player === 1 && isLastUnsolved(player1Set2)) {
                     showTransitionOverlay();
                     setTimeout(() => {
                         hideTransitionOverlay();
-                        sendMessage("Detective A completed Library. Waiting for Detective B...", "System");
-                        updateFinishState();
+                        player1Scene2.style.display = 'none';
+                        document.getElementById('player1-ballroom').style.display = 'block';
+                        sendMessage("Detective A entered Ballroom 1.", "System");
                     }, 1500);
                 }
 
+                // Player 2: Lab -> Security Room
                 if (gameState.player === 2 && isLastUnsolved(player2Set1)) {
                     showTransitionOverlay();
                     setTimeout(() => {
                         hideTransitionOverlay();
                         player2Scene.style.display = 'none';
                         player2Scene2.style.display = 'block';
-                        sendMessage("Detective B completed Labo.", "System");
+                        sendMessage("Detective B completed Lab.", "System");
                     }, 1500);
                 }
 
+                // Player 2: Security Room -> Ballroom 2
                 if (gameState.player === 2 && isLastUnsolved(player2Set2)) {
                     showTransitionOverlay();
                     setTimeout(() => {
                         hideTransitionOverlay();
-                        sendMessage("Detective B completed Security Room. Waiting for Detective A...", "System");
-                        updateFinishState();
+                        player2Scene2.style.display = 'none';
+                        document.getElementById('player2-ballroom').style.display = 'block';
+                        sendMessage("Detective B entered Ballroom 2.", "System");
                     }, 1500);
                 }
 
             } else {
                 sendMessage(gameState.playerName + ' attempted ' + objectName + ' but failed', gameState.player === 1 ? 'Player 1' : 'Player 2');
+            }
+
+            // Trigger ballroom finale logic if a ballroom riddle was just solved
+            if (
+                (gameState.player === 1 && (objectName === 'portrait_ballroom' || objectName === 'chandelier')) ||
+                (gameState.player === 2 && (objectName === 'Wallinscription' || objectName === 'Listen'))
+            ) {
+                checkBallroomCompletion();
             }
         });
     }
@@ -441,19 +545,64 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- GAME RESET LOGIC ---
+    function resetGameStateAndUI() {
+        // Hide all overlays
+        document.getElementById('eternalis-congrats').style.display = 'none';
+        document.getElementById('final-video-overlay').style.display = 'none';
+        document.getElementById('intro-video-overlay').style.display = 'none';
+        document.getElementById('waiting-room').style.display = 'none';
+        document.getElementById('transition-overlay').style.display = 'none';
+        // Hide all scenes
+        document.querySelectorAll('.scene').forEach(scene => scene.style.display = 'none');
+        // Hide game container, show lobby
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('lobby').style.display = 'flex';
+        // Show both create/join sections
+        document.getElementById('create-game').style.display = 'block';
+        document.getElementById('join-game').style.display = 'block';
+        // Reset header info
+        document.getElementById('player-role').textContent = '';
+        document.getElementById('room-code-display').textContent = '';
+        // Reset inventory, chat, progress, hints, riddles, etc.
+        document.getElementById('inventory-items').innerHTML = '';
+        document.getElementById('messages').innerHTML = '';
+        document.getElementById('game-progress').style.width = '0%';
+        document.getElementById('hint-text').textContent = '';
+        document.getElementById('challenge-list').innerHTML = '';
+        // Remove solved-object classes
+        document.querySelectorAll('.game-object.solved-object').forEach(obj => obj.classList.remove('solved-object'));
+        // Reset gameState object (keep only persistent properties if needed)
+        if (window.gameState) {
+            window.gameState = { started: false };
+        }
+        // Remove any skip button from previous intro
+        const skipBtn = document.getElementById('skip-intro-btn');
+        if (skipBtn && skipBtn.parentNode) skipBtn.parentNode.removeChild(skipBtn);
+        // Remove skip button from final video
+        const skipFinalBtn = document.getElementById('skip-final-btn');
+        if (skipFinalBtn && skipFinalBtn.parentNode) skipFinalBtn.parentNode.removeChild(skipFinalBtn);
+        // Pause and reset background audio
+        pauseBgAudio();
+        audioEnabled = true;
+        if (muteBtn) muteBtn.textContent = 'Mute';
+    }
+
     function showIntroVideoAndStartGame() {
+        if (gameState.started) return; // Prevent double intro
+        gameState.started = true;
         waitingRoom.style.display = 'none';
         introVideoOverlay.style.display = 'flex';
         introVideo.currentTime = 0;
         introVideo.play();
-        // Only allow proceeding after video ends
         introVideo.onended = () => {
             introVideoOverlay.style.display = 'none';
             startGame();
         };
-        // Optional: allow skipping after a few seconds
-        if (!document.getElementById('skip-intro-btn')) {
-            const skipBtn = document.createElement('button');
+        // Always (re)create skip button
+        let skipBtn = document.getElementById('skip-intro-btn');
+        if (!skipBtn) {
+            skipBtn = document.createElement('button');
             skipBtn.id = 'skip-intro-btn';
             skipBtn.textContent = 'Skip Intro';
             skipBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
@@ -463,6 +612,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 startGame();
             };
             introVideoOverlay.appendChild(skipBtn);
+        } else {
+            skipBtn.style.display = 'block';
         }
     }
 
@@ -475,14 +626,14 @@ window.addEventListener('DOMContentLoaded', () => {
             if (gameState.player === 1) {
                 if (aJoined && !bJoined) {
                     showWaitingRoom(true);
-                } else if (aJoined && bJoined) {
+                } else if (aJoined && bJoined && !gameState.started) {
                     waitingMessages.innerHTML = '<div>Detective A joined</div><div>Detective B joined</div><div>Proceeding to the game</div>';
                     setTimeout(() => {
                         showIntroVideoAndStartGame();
                     }, 1200);
                 }
             } else if (gameState.player === 2) {
-                if (aJoined && bJoined) {
+                if (aJoined && bJoined && !gameState.started) {
                     showWaitingRoom(false);
                     setTimeout(() => {
                         showIntroVideoAndStartGame();
@@ -493,7 +644,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Background Audio Setup ---
-    let bgAudio = new Audio('../static/audios/Horror_Background.mp3');
+    let bgAudio = new Audio('src/static/audios/Horror_Background.mp3');
     bgAudio.loop = true;
     bgAudio.volume = 0.5;
     let audioEnabled = true;
@@ -635,4 +786,83 @@ window.addEventListener('DOMContentLoaded', () => {
         el.textContent = 'Camera Feed';
     });
 
+    // After both ballroom riddles, show waiting screen for this player
+    function checkBallroomCompletion() {
+        // Only trigger if both ballroom riddles are solved for this player
+        if (
+            (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
+            (gameState.player === 2 && gameState.riddleState.Wallinscription.solved && gameState.riddleState.Listen.solved)
+        ) {
+            // Hide only this player's ballroom
+            if (gameState.player === 1) {
+                const ballroom1 = document.getElementById('player1-ballroom');
+                if (ballroom1) ballroom1.style.display = 'none';
+            }
+            if (gameState.player === 2) {
+                const ballroom2 = document.getElementById('player2-ballroom');
+                if (ballroom2) ballroom2.style.display = 'none';
+            }
+            showTransitionOverlay('Waiting for the other detective to finish...');
+            // Mark this player as done in Firestore
+            db.collection("rooms").doc(gameState.roomId).set({
+                [gameState.player === 1 ? "player1BallroomDone" : "player2BallroomDone"]: true
+            }, { merge: true });
+            // Listen for both players to finish
+            db.collection("rooms").doc(gameState.roomId).onSnapshot(doc => {
+                const data = doc.data();
+                if (data.player1BallroomDone && data.player2BallroomDone) {
+                    // Both finished: update overlay for both, then proceed after a short delay
+                    showTransitionOverlay('Both detectives are finished, proceeding...');
+                    setTimeout(() => {
+                        hideTransitionOverlay();
+                        // Pause background music before showing final video
+                        pauseBgAudio();
+                        // Show final video overlay (only for this player, not synced)
+                        const finalVideoOverlay = document.getElementById('final-video-overlay');
+                        finalVideoOverlay.style.display = 'flex';
+                        const finalVideo = document.getElementById('final-video');
+                        finalVideo.currentTime = 0;
+                        finalVideo.play();
+                        // Add skip button for final video (local only)
+                        let skipFinalBtn = document.getElementById('skip-final-btn');
+                        if (!skipFinalBtn) {
+                            skipFinalBtn = document.createElement('button');
+                            skipFinalBtn.id = 'skip-final-btn';
+                            skipFinalBtn.textContent = 'Skip';
+                            skipFinalBtn.style = 'position:absolute;top:24px;right:24px;padding:10px 20px;font-size:1.2rem;z-index:10;background:#222;color:#fff;border-radius:8px;border:none;cursor:pointer;opacity:0.8;';
+                            skipFinalBtn.onclick = () => {
+                                finalVideo.pause();
+                                finalVideoOverlay.style.display = 'none';
+                                showCongratsOverlay();
+                            };
+                            finalVideoOverlay.appendChild(skipFinalBtn);
+                        } else {
+                            skipFinalBtn.style.display = 'block';
+                        }
+                        // Only show congrats after video finishes (remove controls to prevent skipping)
+                        finalVideo.controls = false;
+                        finalVideo.onended = () => {
+                            finalVideoOverlay.style.display = 'none';
+                            showCongratsOverlay();
+                        };
+                    }, 2000); // 2 seconds for the new relay
+                }
+            });
+        }
+    }
+
+    function showCongratsOverlay() {
+        // Show congrats overlay for 10 seconds
+        const congrats = document.getElementById('eternalis-congrats');
+        congrats.querySelector('h1').textContent = 'Congratulations!';
+        congrats.querySelector('p').textContent = 'You found Alistair Blackwood and his secret Eternalis';
+        congrats.style.display = 'flex';
+        setTimeout(() => {
+            congrats.style.display = 'none';
+            resetGameStateAndUI();
+            const finalVideo = document.getElementById('final-video');
+            finalVideo.controls = true;
+        }, 10000);
+    }
+    // ...existing code...
 });

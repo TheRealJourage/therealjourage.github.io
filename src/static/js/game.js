@@ -301,6 +301,13 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('riddle-question').textContent = riddle.question;
         document.getElementById('riddle-hint').style.display = 'none';
         document.getElementById('riddle-hint').textContent = riddle.hint;
+        // Always clear the answer input for a new riddle
+        const riddleAnswerInput = document.getElementById('riddle-answer');
+        if (riddleAnswerInput) riddleAnswerInput.value = '';
+        // Remove any previous event listener to avoid duplicate submits
+        if (riddleAnswerInput) {
+            riddleAnswerInput.onkeydown = null;
+        }
         // Custom input for bookshelf puzzle
         if (riddle === gameState.riddleState.bookshelf) {
             // Make modal taller and wider for bookshelf
@@ -345,8 +352,17 @@ window.addEventListener('DOMContentLoaded', () => {
                 '<input id="monitor-answer" type="text" maxlength="2" style="width:40px; padding:6px; font-size:1.2rem; text-align:center; border-radius:6px; border:none; margin:0 6px;">' +
                 '<span style="font-size:1.2rem;"> AM</span>';
             modalContent.insertBefore(monitorDiv, document.getElementById('riddle-hint-btn').parentNode);
-            // Always set submit button label to 'Submit' for all riddles
-            document.getElementById('riddle-submit-btn').textContent = 'Submit';
+            // Add Enter key support for monitor answer
+            setTimeout(() => {
+                const monitorInput = document.getElementById('monitor-answer');
+                if (monitorInput) {
+                    monitorInput.onkeydown = function(e) {
+                        if (e.key === 'Enter') {
+                            document.getElementById('riddle-submit-btn').click();
+                        }
+                    };
+                }
+            }, 0);
         } else {
             riddleModal.style.width = '520px';
             riddleModal.style.minHeight = '';
@@ -357,8 +373,14 @@ window.addEventListener('DOMContentLoaded', () => {
             // Remove monitor input if present
             const oldMonitor = document.getElementById('monitor-answer-box');
             if (oldMonitor) oldMonitor.remove();
-            // Always set submit button label to 'Submit' for all riddles
-            document.getElementById('riddle-submit-btn').textContent = 'Submit';
+            // Add Enter key support for riddle answer
+            if (riddleAnswerInput) {
+                riddleAnswerInput.onkeydown = function(e) {
+                    if (e.key === 'Enter') {
+                        document.getElementById('riddle-submit-btn').click();
+                    }
+                };
+            }
         }
         riddleModal.style.display = 'flex';
         if (riddle === gameState.riddleState.bookshelf) {
@@ -769,7 +791,7 @@ window.addEventListener('DOMContentLoaded', () => {
         // Only trigger if both ballroom riddles are solved for this player
         if (
             (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
-            (gameState.player === 2 && gameState.riddleState.fireplace.solved && gameState.riddleState.damaged_floor.solved)
+            (gameState.player === 2 && gameState.riddleState.Wallinscription.solved && gameState.riddleState.Listen.solved)
         ) {
             // Hide only this player's ballroom
             if (gameState.player === 1) {

@@ -114,15 +114,15 @@ window.addEventListener('DOMContentLoaded', () => {
                 solved: false
             },
             // Ballroom_2 (Detective B - Room 3)
-            fireplace: {
+            Wallinscription: {
                 question: "I twirl without feet, glide without hands. I dance with the guests as the music commands. No face do I have, yet many wear my guise, In this enchanted room where reflection never lies. Find me where echoes of waltzes remain and I shall unlock what the ballroom has chained.",
                 answer: "mirror",
                 hint: "Reflect a bit",
                 solved: false
             },
-            damaged_floor: {
+            Listen: {
                 question: "What is the awnser to everything? 0 ----- , 1 .---- , 2 ..--- , 3 ...-- , 4 ....- , 5 ..... , 6 -.... , 7 --... , 8 ---.. , 9 ----.",
-                answer: "1",
+                answer: "42",
                 hint: "Listen closely to the background music",
                 solved: false
             }

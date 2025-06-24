@@ -102,24 +102,28 @@ window.addEventListener('DOMContentLoaded', () => {
             },
             // Ballroom_1 (Detective A - Room 3)
             portrait_ballroom: {
-                question: "The portrait shows Alistair Blackwood. What number is hidden in the curtain folds?",
-                answer: "3",
+                question: "The portrait shows Alistair Blackwood. What number summ is hidden in the curtain folds?",
+                answer: "78",
+                hint: "Add them together and think about witch numbers you see",
                 solved: false
             },
             chandelier: {
-                question: "How many arms does the chandelier have?",
-                answer: "5",
+                question: "How many light do the chandeliers have?",
+                answer: "19",
+                hint: "Remember there are 2 chandeliers, since both players are in the same room",
                 solved: false
             },
             // Ballroom_2 (Detective B - Room 3)
             fireplace: {
-                question: "What symbol is carved into the fireplace mantel?",
-                answer: "skull",
+                question: "I twirl without feet, glide without hands. I dance with the guests as the music commands. No face do I have, yet many wear my guise, In this enchanted room where reflection never lies. Find me where echoes of waltzes remain and I shall unlock what the ballroom has chained.",
+                answer: "mirror",
+                hint: "Reflect a bit",
                 solved: false
             },
             damaged_floor: {
-                question: "What number is etched beneath the broken tile?",
+                question: "What is the awnser to everything? 0 ----- , 1 .---- , 2 ..--- , 3 ...-- , 4 ....- , 5 ..... , 6 -.... , 7 --... , 8 ---.. , 9 ----.",
                 answer: "1",
+                hint: "Listen closely to the background music",
                 solved: false
             }
         }

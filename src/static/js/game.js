@@ -242,7 +242,7 @@ window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (
                 (gameState.player === 1 && gameState.riddleState.portrait_ballroom.solved && gameState.riddleState.chandelier.solved) ||
-                (gameState.player === 2 && gameState.riddleState.fireplace.solved && gameState.riddleState.damaged_floor.solved)
+                (gameState.player === 2 && gameState.riddleState.Wallinscription.solved && gameState.riddleState.Listen.solved)
             ) {
                 document.getElementById('player1-ballroom').style.display = 'none';
                 document.getElementById('player2-ballroom').style.display = 'none';
